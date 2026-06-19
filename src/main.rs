@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use horror_game_juniper_game_jam::components::{
     entity::{GreetTimer, add_entities},
     player::SetupPlugin,
+    screens::game_menu::GameMenuPlugin,
 };
 
 pub struct StartPlugin;
@@ -16,6 +17,6 @@ impl Plugin for StartPlugin {
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, StartPlugin, SetupPlugin))
+        .add_plugins((DefaultPlugins, GameMenuPlugin, StartPlugin, SetupPlugin))
         .run();
 }
