@@ -1,15 +1,87 @@
-use bevy::prelude::*;
+use bevy::{post_process::bloom::Bloom, prelude::*};
 
-use super::entity::Name;
+const PLAYER_SPEED: f32 = 100.;
+const CAMERA_DECAY_RATE: f32 = 2.;
 
 #[derive(Component)]
 pub struct Player;
 
-pub fn update_player(mut query: Query<&mut Name, With<Player>>) {
-    for mut name in &mut query {
-        if name.0 == "Bob Testrop" {
-            name.0 = "Bob Freddyson".to_string();
-            break;
-        }
+pub struct SetupPlugin;
+
+impl Plugin for SetupPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, (setup_scene, setup_instructions, setup_camera))
+            .add_systems(Update, (move_player, update_camera).chain());
     }
+}
+
+fn setup_scene(
+    mut cmds: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    cmds.spawn((
+        Mesh2d(meshes.add(Rectangle::new(1000.0, 700.0))),
+        MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))),
+    ));
+
+    cmds.spawn((
+        Player,
+        Mesh2d(meshes.add(Circle::new(25.0))),
+        MeshMaterial2d(materials.add(Color::srgb(6.25, 9.4, 9.1))),
+        Transform::from_xyz(0.0, 0.0, 2.0),
+    ));
+}
+
+fn setup_instructions(mut cmds: Commands) {
+    cmds.spawn((
+        Text::new("Move the flashlight with WASD."),
+        Node {
+            position_type: PositionType::Absolute,
+            bottom: px(12),
+            left: px(12),
+            ..default()
+        },
+    ));
+}
+
+fn setup_camera(mut cmds: Commands) {
+    cmds.spawn((Camera2d, Bloom::NATURAL));
+}
+
+fn update_camera(
+    mut camera: Single<&mut Transform, (With<Camera2d>, Without<Player>)>,
+    player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
+    time: Res<Time>,
+) {
+    let Vec3 { x, y, .. } = player.translation;
+    let direction = Vec3::new(x, y, camera.translation.z);
+
+    camera
+        .translation
+        .smooth_nudge(&direction, CAMERA_DECAY_RATE, time.delta_secs());
+}
+
+fn move_player(
+    mut player: Single<&mut Transform, With<Player>>,
+    time: Res<Time>,
+    kb_input: Res<ButtonInput<KeyCode>>,
+) {
+    let mut direction = Vec2::ZERO;
+
+    if kb_input.pressed(KeyCode::KeyW) {
+        direction.y += 1.0;
+    }
+    if kb_input.pressed(KeyCode::KeyS) {
+        direction.y -= 1.0;
+    }
+    if kb_input.pressed(KeyCode::KeyA) {
+        direction.x -= 1.0;
+    }
+    if kb_input.pressed(KeyCode::KeyD) {
+        direction.x += 1.0;
+    }
+
+    let move_delta = direction.normalize_or_zero() * PLAYER_SPEED * time.delta_secs();
+    player.translation += move_delta.extend(0.0);
 }
