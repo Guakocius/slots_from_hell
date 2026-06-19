@@ -2851,8 +2851,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
-name = "horror"
-version = "0.1.0"
+name = "horror_game_juniper_game_jam"
+version = "0.1.1"
 dependencies = [
  "bevy",
 ]

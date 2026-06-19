@@ -1,63 +1,20 @@
 use bevy::prelude::*;
 
-fn hello_world() {
-    println!("hello world!");
-}
+use horror_game_juniper_game_jam::components::{
+    entity::{GreetTimer, add_entities, greet_entities},
+    player::update_player,
+};
 
-#[derive(Component)]
-struct Player;
-#[derive(Component)]
-struct Name(String);
-#[derive(Component)]
-struct Animatronic;
+pub struct StartPlugin;
 
-fn add_entities(mut cmds: Commands) {
-    cmds.spawn((Player, Name("Bob Testrop".to_string())));
-    ["Bonnie", "Chica", "Freddy", "Foxy"].iter().for_each(|a| {
-        cmds.spawn((Animatronic, Name(a.to_string())));
-    });
-}
-
-fn greet_player(query: Query<&Name, With<Player>>) {
-    for name in &query {
-        println!("hello {}!", name.0);
-    }
-}
-
-fn greet_animatronics(query: Query<&Name, With<Animatronic>>) {
-    for name in &query {
-        println!("hello {}!", name.0);
-    }
-}
-
-fn update_player(mut query: Query<&mut Name, With<Player>>) {
-    for mut name in &mut query {
-        if name.0 == "Bob Testrop" {
-            name.0 = "Bob Freddyson".to_string();
-            break;
-        }
-    }
-}
-
-pub struct HelloPlugin;
-
-impl Plugin for HelloPlugin {
+impl Plugin for StartPlugin {
     fn build(&self, app: &mut App) {
-        app
+        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
             .add_systems(Startup, add_entities)
-            .add_systems(
-                Update,
-                (
-                    hello_world,
-                    (update_player, greet_player).chain(),
-                    greet_animatronics,
-                )
-            );
+            .add_systems(Update, (update_player, greet_entities));
     }
 }
 
 fn main() {
-    App::new()
-        .add_plugins((DefaultPlugins, HelloPlugin))
-        .run();
+    App::new().add_plugins((DefaultPlugins, StartPlugin)).run();
 }
