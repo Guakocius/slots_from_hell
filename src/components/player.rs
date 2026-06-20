@@ -6,24 +6,6 @@ const CAMERA_DECAY_RATE: f32 = 2.;
 #[derive(Component)]
 pub struct Player;
 
-pub fn setup_scene(
-    mut cmds: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-    cmds.spawn((
-        Mesh2d(meshes.add(Rectangle::new(1000.0, 700.0))),
-        MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))),
-    ));
-
-    cmds.spawn((
-        Player,
-        Mesh2d(meshes.add(Circle::new(25.0))),
-        MeshMaterial2d(materials.add(Color::srgb(6.25, 9.4, 9.1))),
-        Transform::from_xyz(0.0, 0.0, 2.0),
-    ));
-}
-
 pub fn setup_instructions(mut cmds: Commands) {
     cmds.spawn((
         Text::new("Move the flashlight with WASD."),

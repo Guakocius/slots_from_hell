@@ -201,15 +201,12 @@ mod menu {
 
     use super::{DisplayQuality, GameState, Setting, TEXT_COLOR, Volume};
 
-    use crate::components::player::{move_player, setup_instructions, setup_scene, update_camera};
+    use crate::components::player::{move_player, setup_instructions, update_camera};
 
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
             .add_systems(OnEnter(GameState::Menu), menu_setup)
-            .add_systems(
-                OnEnter(GameState::Playing),
-                (setup_scene, setup_instructions),
-            )
+            .add_systems(OnEnter(GameState::Playing), (setup_instructions))
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
             .add_systems(
