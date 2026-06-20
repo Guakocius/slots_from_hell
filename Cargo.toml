@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.18.1", default-features = false, features = [
-  "2d", "ui", "default_font", "bevy_winit", "bevy_core_pipeline", "multi_threaded"
+  "2d", "ui", "default_font", "bevy_winit", "bevy_core_pipeline", "multi_threaded", "jpeg"
   ] }
 chacha20 = "0.10.0"
 rand = "0.10.1"
