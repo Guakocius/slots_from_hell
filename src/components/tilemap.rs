@@ -45,7 +45,7 @@ fn setup(mut cmds: Commands, assets: Res<AssetServer>) {
             chunk_size,
             tile_display_size,
             tileset: assets.load_with_settings(
-                "textures/map_texture.png",
+                "textures/map_texture_floor.jpg",
                 |settings: &mut ImageLoaderSettings| {
                     settings.array_layout = Some(ImageArrayLayout::RowCount { rows: 4 });
                 },
