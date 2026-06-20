@@ -12,7 +12,7 @@ pub struct GreetTimer(pub Timer);
 
 pub fn add_entities(mut cmds: Commands) {
     cmds.spawn((Player, Name("Bob Testrop".to_string())));
-    ["Entity1", "Entity2", "Entity3", "Entity4"]
+    ["Asmodeus", "Entity2", "Entity3", "Entity4"]
         .iter()
         .for_each(|a| {
             cmds.spawn((Entity, Name(a.to_string())));
