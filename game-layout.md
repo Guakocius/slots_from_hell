@@ -2,7 +2,7 @@
 
 ## Ideas for the game's elements
 
-- Social Anxiety
+- **Theme**: Spin to win
 
-* Demonic humanoids chasing in public
-* Periodically have to go into the shadows / quiet places to not get a panic attack.
+* Slot Machine straight out of hell (CloverPit-Like)
+* Spin in "ever-repeating day" (Groundhog Day)
