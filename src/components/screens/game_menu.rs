@@ -8,6 +8,7 @@ enum GameState {
     Splash,
     Menu,
     Game,
+    Playing,
 }
 
 #[derive(Resource, Debug, PartialEq, Eq, Clone, Copy, Component)]
@@ -30,7 +31,8 @@ impl Plugin for GameMenuPlugin {
         app.insert_resource(DisplayQuality::Medium)
             .insert_resource(Volume(7))
             .init_state::<GameState>()
-            .add_plugins((splash::splash_plugin, menu::menu_plugin, game::game_plugin));
+            .add_plugins((splash::splash_plugin, menu::menu_plugin, game::game_plugin))
+            .add_systems(Startup, setup);
     }
 }
 
@@ -175,7 +177,7 @@ mod game {
             )],
         ));
 
-        cmds.insert_resource(GameTimer(Timer::from_seconds(5.0, TimerMode::Once)));
+        cmds.insert_resource(GameTimer(Timer::from_seconds(2.0, TimerMode::Once)));
     }
 
     fn game(
@@ -184,7 +186,7 @@ mod game {
         mut timer: ResMut<GameTimer>,
     ) {
         if timer.tick(time.delta()).is_finished() {
-            game_state.set(GameState::Menu);
+            game_state.set(GameState::Playing);
         }
     }
 }
@@ -199,9 +201,15 @@ mod menu {
 
     use super::{DisplayQuality, GameState, Setting, TEXT_COLOR, Volume};
 
+    use crate::components::player::{move_player, setup_instructions, setup_scene, update_camera};
+
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
             .add_systems(OnEnter(GameState::Menu), menu_setup)
+            .add_systems(
+                OnEnter(GameState::Playing),
+                (setup_scene, setup_instructions),
+            )
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
             .add_systems(
@@ -220,6 +228,12 @@ mod menu {
             .add_systems(
                 Update,
                 (menu_action, button_system).run_if(in_state(GameState::Menu)),
+            )
+            .add_systems(
+                Update,
+                (move_player, update_camera)
+                    .chain()
+                    .run_if(in_state(GameState::Playing)),
             );
     }
 

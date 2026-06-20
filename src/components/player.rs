@@ -6,16 +6,7 @@ const CAMERA_DECAY_RATE: f32 = 2.;
 #[derive(Component)]
 pub struct Player;
 
-pub struct SetupPlugin;
-
-impl Plugin for SetupPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (setup_scene, setup_instructions, setup_camera))
-            .add_systems(Update, (move_player, update_camera).chain());
-    }
-}
-
-fn setup_scene(
+pub fn setup_scene(
     mut cmds: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -33,7 +24,7 @@ fn setup_scene(
     ));
 }
 
-fn setup_instructions(mut cmds: Commands) {
+pub fn setup_instructions(mut cmds: Commands) {
     cmds.spawn((
         Text::new("Move the flashlight with WASD."),
         Node {
@@ -45,11 +36,7 @@ fn setup_instructions(mut cmds: Commands) {
     ));
 }
 
-fn setup_camera(mut cmds: Commands) {
-    cmds.spawn((Camera2d, Bloom::NATURAL));
-}
-
-fn update_camera(
+pub fn update_camera(
     mut camera: Single<&mut Transform, (With<Camera2d>, Without<Player>)>,
     player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
     time: Res<Time>,
@@ -62,7 +49,7 @@ fn update_camera(
         .smooth_nudge(&direction, CAMERA_DECAY_RATE, time.delta_secs());
 }
 
-fn move_player(
+pub fn move_player(
     mut player: Single<&mut Transform, With<Player>>,
     time: Res<Time>,
     kb_input: Res<ButtonInput<KeyCode>>,
