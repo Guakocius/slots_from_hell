@@ -13,8 +13,7 @@ pub struct TilemapPlugin;
 
 impl Plugin for TilemapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-            .add_systems(Startup, (setup, setup_scene).chain())
+        app.add_systems(Startup, (setup, setup_scene).chain())
             .add_systems(Update, (update_tilemap, log_tile));
     }
 }

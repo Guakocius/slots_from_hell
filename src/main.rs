@@ -17,6 +17,11 @@ impl Plugin for StartPlugin {
 
 fn main() {
     App::new()
-        .add_plugins((TilemapPlugin, GameMenuPlugin, StartPlugin))
+        .add_plugins((
+            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            TilemapPlugin,
+            GameMenuPlugin,
+            StartPlugin,
+        ))
         .run();
 }
