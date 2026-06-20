@@ -605,21 +605,24 @@ mod menu {
                         Children::spawn((
                             Spawn((Text::new("Volume"), button_text_style.clone())),
                             SpawnWith(move |parent: &mut ChildSpawner| {
-                                for volume_setting in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] {
-                                    let mut entity = parent.spawn((
-                                        Button,
-                                        Node {
-                                            width: px(30),
-                                            height: px(65),
-                                            ..button_node_clone.clone()
-                                        },
-                                        BackgroundColor(NORMAL_BUTTON),
-                                        Setting(Volume(volume_setting)),
-                                    ));
-                                    if volume == Volume(volume_setting) {
-                                        entity.insert(SelectedOption);
-                                    }
-                                }
+                                (0..=9)
+                                    .collect::<Vec<u32>>()
+                                    .iter()
+                                    .for_each(|volume_setting| {
+                                        let mut entity = parent.spawn((
+                                            Button,
+                                            Node {
+                                                width: px(30),
+                                                height: px(65),
+                                                ..button_node_clone.clone()
+                                            },
+                                            BackgroundColor(NORMAL_BUTTON),
+                                            Setting(Volume(*volume_setting)),
+                                        ));
+                                        if volume == Volume(*volume_setting) {
+                                            entity.insert(SelectedOption);
+                                        }
+                                    });
                             })
                         ))
                     ),
