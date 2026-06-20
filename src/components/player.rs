@@ -1,7 +1,12 @@
 use bevy::{post_process::bloom::Bloom, prelude::*};
 
-const PLAYER_SPEED: f32 = 100.;
-const CAMERA_DECAY_RATE: f32 = 2.;
+use crate::{
+    GameState,
+    menu::{MenuButtonAction, MenuState},
+};
+
+const PLAYER_SPEED: f32 = 100.0;
+const CAMERA_DECAY_RATE: f32 = 2.0;
 
 #[derive(Component)]
 pub struct Player;
@@ -53,4 +58,19 @@ pub fn move_player(
 
     let move_delta = direction.normalize_or_zero() * PLAYER_SPEED * time.delta_secs();
     player.translation += move_delta.extend(0.0);
+}
+
+pub fn player_input(
+    kb_input: Res<ButtonInput<KeyCode>>,
+    interaction_query: Query<
+        (&Interaction, &MenuButtonAction),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut menu_state: ResMut<NextState<MenuState>>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    if kb_input.pressed(KeyCode::Escape) {
+        game_state.set(GameState::Menu);
+        menu_state.set(MenuState::Main);
+    }
 }

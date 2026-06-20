@@ -3,7 +3,7 @@ use bevy::prelude::*;
 const TEXT_COLOR: Color = Color::srgb(0.0, 0.28, 0.73);
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
-enum GameState {
+pub enum GameState {
     #[default]
     Splash,
     Menu,
@@ -191,7 +191,7 @@ mod game {
     }
 }
 
-mod menu {
+pub mod menu {
     use bevy::{
         app::AppExit,
         color::palettes::css::NAVAJO_WHITE,
@@ -201,7 +201,7 @@ mod menu {
 
     use super::{DisplayQuality, GameState, Setting, TEXT_COLOR, Volume};
 
-    use crate::components::player::{move_player, setup_instructions, update_camera};
+    use crate::components::player::{move_player, player_input, setup_instructions, update_camera};
 
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
@@ -228,14 +228,13 @@ mod menu {
             )
             .add_systems(
                 Update,
-                (move_player, update_camera)
-                    .chain()
+                ((move_player, update_camera).chain(), player_input)
                     .run_if(in_state(GameState::Playing)),
             );
     }
 
     #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
-    enum MenuState {
+    pub enum MenuState {
         Main,
         Settings,
         SettingsDisplay,
@@ -265,7 +264,7 @@ mod menu {
     struct SelectedOption;
 
     #[derive(Component)]
-    enum MenuButtonAction {
+    pub enum MenuButtonAction {
         Play,
         Settings,
         SettingsDisplay,
