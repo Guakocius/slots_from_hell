@@ -55,7 +55,7 @@ mod splash {
     struct SplashTimer(Timer);
 
     fn splash_setup(mut cmds: Commands, asset_server: Res<AssetServer>) {
-        let icon = asset_server.load("assets/img/icon.png");
+        let icon = asset_server.load("img/icon.png");
         cmds.spawn((
             DespawnOnExit(GameState::Splash),
             Node {
@@ -192,7 +192,7 @@ mod game {
 mod menu {
     use bevy::{
         app::AppExit,
-        color::palettes::css::CRIMSON,
+        color::palettes::css::NAVAJO_WHITE,
         ecs::spawn::{SpawnIter, SpawnWith},
         prelude::*,
     };
@@ -245,10 +245,10 @@ mod menu {
     #[derive(Component)]
     struct OnSoundSettingsMenuScreen;
 
-    const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
-    const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
-    const HOVERED_PRESSED_BUTTON: Color = Color::srgb(0.25, 0.65, 0.25);
-    const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
+    const NORMAL_BUTTON: Color = Color::srgb(0.5, 0.5, 0.5);
+    const HOVERED_BUTTON: Color = Color::srgb(0.75, 0.75, 0.75);
+    const HOVERED_PRESSED_BUTTON: Color = Color::srgb(0.5, 0.65, 0.5);
+    const PRESSED_BUTTON: Color = Color::srgb(0.65, 0.75, 0.65);
 
     #[derive(Component)]
     struct SelectedOption;
@@ -325,9 +325,9 @@ mod menu {
             ..default()
         };
 
-        let right_icon = asset_server.load("assets/img/right.png");
-        let wrench_icon = asset_server.load("assets/img/wrench.png");
-        let exit_icon = asset_server.load("assets/img/exit.png");
+        let right_icon = asset_server.load("img/right.png");
+        let wrench_icon = asset_server.load("img/wrench.png");
+        let exit_icon = asset_server.load("img/exit.png");
 
         cmds.spawn((
             DespawnOnExit(MenuState::Main),
@@ -345,7 +345,7 @@ mod menu {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                BackgroundColor(CRIMSON.into()),
+                BackgroundColor(NAVAJO_WHITE.into()),
                 children![
                     (
                         Text::new("2D Horror Game Main Menu"),
@@ -436,7 +436,7 @@ mod menu {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                BackgroundColor(CRIMSON.into()),
+                BackgroundColor(NAVAJO_WHITE.into()),
                 Children::spawn(SpawnIter(
                     [
                         (MenuButtonAction::SettingsDisplay, "Display"),
@@ -496,14 +496,14 @@ mod menu {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                BackgroundColor(CRIMSON.into()),
+                BackgroundColor(NAVAJO_WHITE.into()),
                 children![
                     (
                         Node {
                             align_items: AlignItems::Center,
                             ..default()
                         },
-                        BackgroundColor(CRIMSON.into()),
+                        BackgroundColor(NAVAJO_WHITE.into()),
                         Children::spawn((
                             Spawn((Text::new("Display Quality"), button_text_style())),
                             SpawnWith(move |parent: &mut ChildSpawner| {
@@ -580,14 +580,14 @@ mod menu {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                BackgroundColor(CRIMSON.into()),
+                BackgroundColor(NAVAJO_WHITE.into()),
                 children![
                     (
                         Node {
                             align_items: AlignItems::Center,
                             ..default()
                         },
-                        BackgroundColor(CRIMSON.into()),
+                        BackgroundColor(NAVAJO_WHITE.into()),
                         Children::spawn((
                             Spawn((Text::new("Volume"), button_text_style.clone())),
                             SpawnWith(move |parent: &mut ChildSpawner| {
