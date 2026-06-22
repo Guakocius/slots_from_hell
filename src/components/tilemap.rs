@@ -50,10 +50,10 @@ fn setup(mut cmds: Commands, assets: Res<AssetServer>) {
                     settings.array_layout = Some(ImageArrayLayout::RowCount { rows: 4 });
                 },
             ),
-            alpha_mode: AlphaMode2d::Opaque,
+            alpha_mode: AlphaMode2d::Blend,
         },
         TilemapChunkTileData(tile_data),
-        UpdateTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+        //        UpdateTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
     ));
 
     cmds.insert_resource(SeededRng(rng));
