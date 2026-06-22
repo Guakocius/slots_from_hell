@@ -1,3 +1,4 @@
+#![warn(missing_docs)]
 pub mod components {
     pub mod entity;
     pub mod player;
