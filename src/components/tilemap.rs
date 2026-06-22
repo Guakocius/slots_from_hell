@@ -1,3 +1,6 @@
+//! A module for creating the world's environments and embedding its graphics inside a
+//! Tilemap
+
 use bevy::{
     color::palettes::tailwind::AMBER_400,
     image::{ImageArrayLayout, ImageLoaderSettings},
@@ -9,6 +12,17 @@ use rand::{RngExt, SeedableRng};
 
 use super::player::Player;
 
+/// A plugin which adds the scene's setup and the tilemap update to the `App's`
+/// behavior
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::tilemap::TilemapPlugin;
+///
+/// App::new().add_plugins(TilemapPlugin).update();
+/// ```
 pub struct TilemapPlugin;
 
 impl Plugin for TilemapPlugin {

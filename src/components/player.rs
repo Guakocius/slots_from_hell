@@ -1,16 +1,38 @@
+//! A module for specifying the player's core behavior.
 use bevy::{post_process::bloom::Bloom, prelude::*};
 
 use crate::{
-    GameState,
+    GameState, Name,
     menu::{MenuButtonAction, MenuState},
 };
 
 const PLAYER_SPEED: f32 = 100.0;
 const CAMERA_DECAY_RATE: f32 = 2.0;
 
+/// A component representing the core essence of the Player which is then
+/// globally shared.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::player::{Player, set_player_name};
+///
+/// App::new().add_systems(Update, set_player_name).update();
+/// ```
 #[derive(Component)]
 pub struct Player;
 
+/// Generates a UI Text with the move controls the [`Player`] has.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::player::setup_instructions;
+///
+/// App::new().add_systems(Startup, setup_instructions).update();
+/// ```
 pub fn setup_instructions(mut cmds: Commands) {
     cmds.spawn((
         Text::new("Move the flashlight with WASD."),
@@ -23,6 +45,33 @@ pub fn setup_instructions(mut cmds: Commands) {
     ));
 }
 
+/// Sets the [`Name`] of the [`Player`].
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::player::set_player_name;
+///
+/// App::new().add_systems(Update, set_player_name).update();
+/// ```
+pub fn set_player_name(mut query: Query<&mut Name, With<Player>>) {
+    if let Some(mut name) = (&mut query).into_iter().next() {
+        name.0 = "Player2".to_string();
+    }
+}
+
+/// This functions updates the `Position` of the [`Camera`] by aligning it to the
+/// `Player's` coordinates.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::player::update_camera;
+///
+/// App::new().add_systems(Update, update_camera).update();
+/// ```
 pub fn update_camera(
     mut camera: Single<&mut Transform, (With<Camera2d>, Without<Player>)>,
     player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
@@ -36,6 +85,17 @@ pub fn update_camera(
         .smooth_nudge(&direction, CAMERA_DECAY_RATE, time.delta_secs());
 }
 
+/// This functions adds event handlers to check for the player's input and moves
+/// the [`Player`] on the key presses `Ẁ`, `S`, `A` and `D` accordingly.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::player::move_player;
+///
+/// App::new().add_systems(Update, move_player).update();
+/// ```
 pub fn move_player(
     mut player: Single<&mut Transform, With<Player>>,
     time: Res<Time>,
@@ -60,12 +120,18 @@ pub fn move_player(
     player.translation += move_delta.extend(0.0);
 }
 
+/// Checks for player input and handles the game logic accordingly.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use horror_game_juniper_game_jam::components::player::player_input;
+///
+/// App::new().add_systems(Update, player_input).update();
+/// ```
 pub fn player_input(
     kb_input: Res<ButtonInput<KeyCode>>,
-    interaction_query: Query<
-        (&Interaction, &MenuButtonAction),
-        (Changed<Interaction>, With<Button>),
-    >,
     mut menu_state: ResMut<NextState<MenuState>>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {

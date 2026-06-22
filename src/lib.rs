@@ -1,4 +1,9 @@
+//! # Slots from Hell
+//!
+//! A 2D horror game for the Juniper Game Jam using the Bevy engine.
+
 #![warn(missing_docs)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 pub mod components {
     pub mod entity;
     pub mod player;
