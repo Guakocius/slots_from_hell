@@ -126,3 +126,16 @@ fn log_tile(tilemap: Single<(&TilemapChunk, &TilemapChunkTileData)>, mut local: 
         *local = tile_data.tileset_index;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tilemap_plugin() {
+        let mut app = App::new();
+
+        app.add_plugins(TilemapPlugin).update();
+        assert!(app.is_plugin_added::<TilemapPlugin>());
+    }
+}
