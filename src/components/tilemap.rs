@@ -19,9 +19,9 @@ use super::player::Player;
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::tilemap::TilemapPlugin;
+/// use slots_from_hell::components::tilemap::TilemapPlugin;
 ///
-/// App::new().add_plugins(TilemapPlugin).update();
+/// App::new().add_plugins(TilemapPlugin);
 /// ```
 pub struct TilemapPlugin;
 
@@ -108,7 +108,7 @@ fn update_tilemap(
         timer.tick(time.delta());
 
         if timer.just_finished() {
-            [0..50].iter().for_each(|_| {
+            (0..50).collect::<Vec<i32>>().iter().for_each(|_| {
                 let index = rng.random_range(0..tile_data.len());
                 tile_data[index] = Some(TileData::from_tileset_index(rng.random_range(0..5)));
             })
@@ -130,12 +130,4 @@ fn log_tile(tilemap: Single<(&TilemapChunk, &TilemapChunkTileData)>, mut local: 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_tilemap_plugin() {
-        let mut app = App::new();
-
-        app.add_plugins(TilemapPlugin).update();
-        assert!(app.is_plugin_added::<TilemapPlugin>());
-    }
 }

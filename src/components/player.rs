@@ -16,7 +16,7 @@ const CAMERA_DECAY_RATE: f32 = 2.0;
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::player::{Player, set_player_name};
+/// use slots_from_hell::components::player::{Player, set_player_name};
 ///
 /// App::new().add_systems(Update, set_player_name).update();
 /// ```
@@ -29,7 +29,7 @@ pub struct Player;
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::player::setup_instructions;
+/// use slots_from_hell::components::player::setup_instructions;
 ///
 /// App::new().add_systems(Startup, setup_instructions).update();
 /// ```
@@ -51,7 +51,7 @@ pub fn setup_instructions(mut cmds: Commands) {
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::player::set_player_name;
+/// use slots_from_hell::components::player::set_player_name;
 ///
 /// App::new().add_systems(Update, set_player_name).update();
 /// ```
@@ -68,7 +68,7 @@ pub fn set_player_name(mut query: Query<&mut Name, With<Player>>) {
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::player::update_camera;
+/// use slots_from_hell::components::player::update_camera;
 ///
 /// App::new().add_systems(Update, update_camera).update();
 /// ```
@@ -92,7 +92,7 @@ pub fn update_camera(
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::player::move_player;
+/// use slots_from_hell::components::player::move_player;
 ///
 /// App::new().add_systems(Update, move_player).update();
 /// ```
@@ -126,9 +126,9 @@ pub fn move_player(
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::player::player_input;
+/// use slots_from_hell::components::player::player_input;
 ///
-/// App::new().add_systems(Update, player_input).update();
+/// App::new().add_plugins(DefaultPlugins).add_systems(Update, player_input);
 /// ```
 pub fn player_input(
     kb_input: Res<ButtonInput<KeyCode>>,

@@ -2798,15 +2798,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
-name = "horror_game_juniper_game_jam"
-version = "0.1.1"
-dependencies = [
- "bevy",
- "chacha20",
- "rand 0.10.1",
-]
-
-[[package]]
 name = "hybrid-array"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4335,6 +4326,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bdd58c3c93c3d278ca835519292445cb4b0d4dc59ccfdf7ceadaab3f8aeb4038"
 dependencies = [
  "version_check",
+]
+
+[[package]]
+name = "slots_from_hell"
+version = "0.1.1"
+dependencies = [
+ "bevy",
+ "chacha20",
+ "rand 0.10.1",
 ]
 
 [[package]]

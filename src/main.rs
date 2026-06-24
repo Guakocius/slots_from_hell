@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use horror_game_juniper_game_jam::components::{
+use slots_from_hell::components::{
     entity::add_entities, screens::game_menu::GameMenuPlugin, tilemap::TilemapPlugin,
 };
 

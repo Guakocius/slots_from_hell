@@ -12,7 +12,7 @@ use super::player::Player;
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::entity::Entity;
+/// use slots_from_hell::components::entity::Entity;
 ///
 /// let mut app = App::new();
 /// // Gets all Entities locations allocated inside this App's World
@@ -27,7 +27,7 @@ pub struct Entity;
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::entity::{Entity, Name, add_entities};
+/// use slots_from_hell::components::entity::{Entity, Name, add_entities};
 ///
 /// fn get_entity_names(query: Query<&Name, With<Entity>>) {
 ///     for name in &query {
@@ -51,7 +51,7 @@ pub struct Name(
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use horror_game_juniper_game_jam::components::entity::add_entities;
+/// use slots_from_hell::components::entity::add_entities;
 /// let mut app = App::new();
 ///
 /// app.add_systems(Startup, add_entities).update();
