@@ -9,6 +9,7 @@ pub enum GameState {
     Menu,
     Game,
     Playing,
+    Pause,
 }
 
 #[derive(Resource, Debug, PartialEq, Eq, Clone, Copy, Component)]
@@ -19,17 +20,22 @@ enum DisplayQuality {
 }
 
 #[derive(Component)]
-struct Setting<T>(T);
+struct Setting<T>(pub T);
 
 #[derive(Resource, Debug, PartialEq, Eq, Clone, Copy, Component)]
-struct Volume(u32);
+struct Volume(pub u32);
 
+#[derive(Resource)]
+pub struct InGame(pub bool);
+
+#[derive(Debug)]
 pub struct GameMenuPlugin;
 
 impl Plugin for GameMenuPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DisplayQuality::Medium)
             .insert_resource(Volume(7))
+            .insert_resource(InGame(false))
             .init_state::<GameState>()
             .add_plugins((splash::splash_plugin, menu::menu_plugin, game::game_plugin))
             .add_systems(Startup, setup);
@@ -199,14 +205,14 @@ pub mod menu {
         prelude::*,
     };
 
-    use super::{DisplayQuality, GameState, Setting, TEXT_COLOR, Volume};
+    use super::{DisplayQuality, GameState, InGame, Setting, TEXT_COLOR, Volume};
 
     use crate::components::player::{move_player, player_input, setup_instructions, update_camera};
 
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
             .add_systems(OnEnter(GameState::Menu), menu_setup)
-            .add_systems(OnEnter(GameState::Playing), (setup_instructions))
+            .add_systems(OnEnter(GameState::Playing), setup_instructions)
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
             .add_systems(
@@ -226,6 +232,7 @@ pub mod menu {
                 Update,
                 (menu_action, button_system).run_if(in_state(GameState::Menu)),
             )
+            .add_systems(OnEnter(GameState::Pause), pause_menu_setup)
             .add_systems(
                 Update,
                 ((move_player, update_camera).chain(), player_input)
@@ -236,6 +243,7 @@ pub mod menu {
     #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
     pub enum MenuState {
         Main,
+        Paused,
         Settings,
         SettingsDisplay,
         SettingsSound,
@@ -247,6 +255,9 @@ pub mod menu {
     struct OnMainMenuScreen;
 
     #[derive(Component)]
+    struct OnPauseScreen;
+
+    #[derive(Component)]
     struct OnSettingsMenuScreen;
 
     #[derive(Component)]
@@ -255,17 +266,18 @@ pub mod menu {
     #[derive(Component)]
     struct OnSoundSettingsMenuScreen;
 
+    #[derive(Component)]
+    struct SelectedOption;
+
     const NORMAL_BUTTON: Color = Color::srgb(0.5, 0.5, 0.5);
     const HOVERED_BUTTON: Color = Color::srgb(0.75, 0.75, 0.75);
     const HOVERED_PRESSED_BUTTON: Color = Color::srgb(0.5, 0.65, 0.5);
     const PRESSED_BUTTON: Color = Color::srgb(0.65, 0.75, 0.65);
 
     #[derive(Component)]
-    struct SelectedOption;
-
-    #[derive(Component)]
     pub enum MenuButtonAction {
         Play,
+        Continue,
         Settings,
         SettingsDisplay,
         SettingsSound,
@@ -315,7 +327,7 @@ pub mod menu {
         menu_state.set(MenuState::Main);
     }
 
-    fn main_menu_setup(mut cmds: Commands, asset_server: Res<AssetServer>) {
+    fn generate_buttons_and_font() -> (Node, Node, TextFont) {
         let button_node = Node {
             width: px(300),
             height: px(65),
@@ -335,9 +347,22 @@ pub mod menu {
             ..default()
         };
 
-        let right_icon = asset_server.load("img/right.png");
-        let wrench_icon = asset_server.load("img/wrench.png");
-        let exit_icon = asset_server.load("img/exit.png");
+        (button_node, button_icon_node, button_text_font)
+    }
+
+    fn generate_icons(
+        asset_server: Res<AssetServer>,
+    ) -> (Handle<Image>, Handle<Image>, Handle<Image>) {
+        (
+            asset_server.load("img/right.png"),
+            asset_server.load("img/wrench.png"),
+            asset_server.load("img/exit.png"),
+        )
+    }
+
+    fn main_menu_setup(mut cmds: Commands, asset_server: Res<AssetServer>) {
+        let generator = generate_buttons_and_font();
+        let icons = generate_icons(asset_server);
 
         cmds.spawn((
             DespawnOnExit(MenuState::Main),
@@ -371,46 +396,48 @@ pub mod menu {
                     ),
                     (
                         Button,
-                        button_node.clone(),
+                        generator.0.clone(),
                         BackgroundColor(NORMAL_BUTTON),
                         MenuButtonAction::Play,
                         children![
-                            (ImageNode::new(right_icon), button_icon_node.clone()),
+                            (ImageNode::new(icons.0), generator.1.clone()),
                             (
                                 Text::new("New Game"),
-                                button_text_font.clone(),
+                                generator.2.clone(),
                                 TextColor(TEXT_COLOR),
                             ),
                         ]
                     ),
                     (
                         Button,
-                        button_node.clone(),
+                        generator.0.clone(),
                         BackgroundColor(NORMAL_BUTTON),
                         MenuButtonAction::Settings,
                         children![
-                            (ImageNode::new(wrench_icon), button_icon_node.clone()),
+                            (ImageNode::new(icons.1), generator.1.clone()),
                             (
                                 Text::new("Settings"),
-                                button_text_font.clone(),
+                                generator.2.clone(),
                                 TextColor(TEXT_COLOR),
                             ),
                         ]
                     ),
                     (
                         Button,
-                        button_node,
+                        generator.0,
                         BackgroundColor(NORMAL_BUTTON),
                         MenuButtonAction::Quit,
                         children![
-                            (ImageNode::new(exit_icon), button_icon_node),
-                            (Text::new("Quit"), button_text_font, TextColor(TEXT_COLOR),),
+                            (ImageNode::new(icons.2), generator.1),
+                            (Text::new("Quit"), generator.2, TextColor(TEXT_COLOR),),
                         ]
                     )
                 ]
             )],
         ));
     }
+
+    fn pause_menu_setup(&mut cmds: Commands, asset_server: Res<AssetServer>) {}
 
     fn settings_menu_setup(mut cmds: Commands) {
         let button_node = Node {
