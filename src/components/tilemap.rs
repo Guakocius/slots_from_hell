@@ -7,7 +7,7 @@ use bevy::{
     sprite_render::{TileData, TilemapChunk, TilemapChunkTileData},
 };
 
-use super::screens::game_menu::GameState;
+use super::screens::game_menu::{GameState, InGame};
 
 /// A plugin which adds the scene's setup and the tilemap update to the `App's`
 /// behavior

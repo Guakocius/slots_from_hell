@@ -437,25 +437,85 @@ pub mod menu {
         ));
     }
 
-    fn pause_menu_setup(&mut cmds: Commands, asset_server: Res<AssetServer>) {}
+    fn pause_menu_setup(mut cmds: Commands, asset_server: Res<AssetServer>) {
+        let generator = generate_buttons_and_font();
+        let icons = generate_icons(asset_server);
 
-    fn settings_menu_setup(mut cmds: Commands) {
-        let button_node = Node {
-            width: px(200),
-            height: px(65),
-            margin: UiRect::all(px(20)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        };
-
-        let button_text_style = (
-            TextFont {
-                font_size: 33.0,
+        cmds.spawn((
+            DespawnOnExit(MenuState::Main),
+            Node {
+                width: percent(100),
+                height: percent(100),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
-            TextColor(TEXT_COLOR),
-        );
+            OnMainMenuScreen,
+            children![(
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                BackgroundColor(NAVAJO_WHITE.into()),
+                children![
+                    (
+                        Text::new("Paused"),
+                        TextFont {
+                            font_size: 68.0,
+                            ..default()
+                        },
+                        TextColor(TEXT_COLOR),
+                        Node {
+                            margin: UiRect::all(px(50)),
+                            ..default()
+                        },
+                    ),
+                    (
+                        Button,
+                        generator.0.clone(),
+                        BackgroundColor(NORMAL_BUTTON),
+                        MenuButtonAction::Play,
+                        children![
+                            (ImageNode::new(icons.0), generator.1.clone()),
+                            (
+                                Text::new("Continue"),
+                                generator.2.clone(),
+                                TextColor(TEXT_COLOR),
+                            ),
+                        ]
+                    ),
+                    (
+                        Button,
+                        generator.0.clone(),
+                        BackgroundColor(NORMAL_BUTTON),
+                        MenuButtonAction::Settings,
+                        children![
+                            (ImageNode::new(icons.1), generator.1.clone()),
+                            (
+                                Text::new("Settings"),
+                                generator.2.clone(),
+                                TextColor(TEXT_COLOR),
+                            ),
+                        ]
+                    ),
+                    (
+                        Button,
+                        generator.0,
+                        BackgroundColor(NORMAL_BUTTON),
+                        MenuButtonAction::Quit,
+                        children![
+                            (ImageNode::new(icons.2), generator.1),
+                            (Text::new("Quit"), generator.2, TextColor(TEXT_COLOR),),
+                        ]
+                    )
+                ]
+            )],
+        ));
+    }
+
+    fn settings_menu_setup(mut cmds: Commands) {
+        let generator = generate_buttons_and_font();
 
         cmds.spawn((
             DespawnOnExit(MenuState::Settings),
@@ -484,10 +544,10 @@ pub mod menu {
                     .map(move |(action, text)| {
                         (
                             Button,
-                            button_node.clone(),
+                            generator.0.clone(),
                             BackgroundColor(NORMAL_BUTTON),
                             action,
-                            children![(Text::new(text), button_text_style.clone())],
+                            children![(Text::new(text), generator.2.clone())],
                         )
                     })
                 ))
@@ -677,6 +737,10 @@ pub mod menu {
                         app_exit_writer.write(AppExit::Success);
                     }
                     MenuButtonAction::Play => {
+                        game_state.set(GameState::Game);
+                        menu_state.set(MenuState::Disabled);
+                    }
+                    MenuButtonAction::Continue => {
                         game_state.set(GameState::Game);
                         menu_state.set(MenuState::Disabled);
                     }
