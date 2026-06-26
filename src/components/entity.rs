@@ -60,7 +60,6 @@ pub struct Name(
 /// assert_eq!(entities, 5);
 /// ```
 pub fn add_entities(mut cmds: Commands) {
-    cmds.spawn((Player, Name("Player".to_string())));
     ["Asmodeus", "Entity2", "Entity3", "Entity4"]
         .iter()
         .for_each(|a| {

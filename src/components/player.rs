@@ -1,10 +1,13 @@
 //! A module for specifying the player's core behavior.
-use bevy::prelude::*;
+use bevy::{color::palettes::css::NAVY, prelude::*};
 
 use crate::{GameState, Name, menu::MenuState};
 
-const PLAYER_SPEED: f32 = 100.0;
-const CAMERA_DECAY_RATE: f32 = 2.0;
+#[derive(Resource)]
+struct PlayerSpeed(f32);
+
+#[derive(Resource)]
+struct CameraDecayRate(f32);
 
 /// A component representing the core essence of the Player which is then
 /// globally shared.
@@ -17,29 +20,63 @@ const CAMERA_DECAY_RATE: f32 = 2.0;
 ///
 /// App::new().add_systems(Update, set_player_name).update();
 /// ```
-#[derive(Component)]
-pub struct Player;
+#[derive(Component, Debug, Clone)]
+pub struct Player {
+    name: String,
+    speed: f32,
+    pub pos: Vec<Vec2>,
+}
 
-/// Generates a UI Text with the move controls the [`Player`] has.
-///
-/// # Examples
-///
-/// ```
-/// use bevy::prelude::*;
-/// use slots_from_hell::components::player::setup_instructions;
-///
-/// App::new().add_systems(Startup, setup_instructions).update();
-/// ```
-pub fn setup_instructions(mut cmds: Commands) {
+impl Player {
+    pub fn new(name: String, speed: f32) -> Self {
+        Self {
+            name,
+            speed,
+            pos: Vec::new(),
+        }
+    }
+}
+
+#[derive(Resource)]
+pub struct PlayerTimer(Timer);
+
+#[derive(Debug)]
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(GameState::Playing), setup)
+            .add_systems(FixedUpdate, (move_player, update_camera));
+    }
+}
+
+fn setup(
+    mut cmds: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    cmds.insert_resource(PlayerTimer(Timer::from_seconds(0.01, TimerMode::Repeating)));
+
+    let player = Player::new("Player".to_string(), 300.0);
+
     cmds.spawn((
-        Text::new("Move the flashlight with WASD."),
+        Mesh2d(meshes.add(Capsule2d::new(10.0, 8.0))),
+        MeshMaterial2d(materials.add(Color::from(NAVY))),
+        player.clone(),
+    ));
+
+    cmds.spawn((
+        Text::new("Use WASD to move."),
         Node {
             position_type: PositionType::Absolute,
-            bottom: px(12),
-            left: px(12),
+            top: px(20),
+            left: px(10),
             ..default()
         },
     ));
+
+    cmds.insert_resource(PlayerSpeed(player.speed));
+    cmds.insert_resource(CameraDecayRate(2.0));
 }
 
 /// Sets the [`Name`] of the [`Player`].
@@ -72,14 +109,15 @@ pub fn set_player_name(mut query: Query<&mut Name, With<Player>>) {
 pub fn update_camera(
     mut camera: Single<&mut Transform, (With<Camera2d>, Without<Player>)>,
     player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
-    time: Res<Time>,
+    time: Res<Time<Fixed>>,
+    camera_decay_rate: Res<CameraDecayRate>,
 ) {
     let Vec3 { x, y, .. } = player.translation;
     let direction = Vec3::new(x, y, camera.translation.z);
 
     camera
         .translation
-        .smooth_nudge(&direction, CAMERA_DECAY_RATE, time.delta_secs());
+        .smooth_nudge(&direction, camera_decay_rate.0, time.delta_secs());
 }
 
 /// This functions adds event handlers to check for the player's input and moves
@@ -95,7 +133,8 @@ pub fn update_camera(
 /// ```
 pub fn move_player(
     mut player: Single<&mut Transform, With<Player>>,
-    time: Res<Time>,
+    speed: Res<PlayerSpeed>,
+    time: Res<Time<Fixed>>,
     kb_input: Res<ButtonInput<KeyCode>>,
 ) {
     let mut direction = Vec2::ZERO;
@@ -113,7 +152,7 @@ pub fn move_player(
         direction.x += 1.0;
     }
 
-    let move_delta = direction.normalize_or_zero() * PLAYER_SPEED * time.delta_secs();
+    let move_delta = direction.normalize_or_zero() * speed.0 * time.delta_secs();
     player.translation += move_delta.extend(0.0);
 }
 
@@ -133,7 +172,7 @@ pub fn player_input(
     mut game_state: ResMut<NextState<GameState>>,
 ) {
     if kb_input.pressed(KeyCode::Escape) {
-        game_state.set(GameState::Menu);
+        game_state.set(GameState::Pause);
         menu_state.set(MenuState::Main);
     }
 }

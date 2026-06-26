@@ -263,7 +263,7 @@ pub mod menu {
 
     use super::{DisplayQuality, GameState, InGame, Setting, TEXT_COLOR, Volume};
 
-    use crate::components::player::{move_player, player_input, setup_instructions, update_camera};
+    use crate::components::player::{move_player, player_input, update_camera};
 
     /// Function for generating the game's menu.
     ///
@@ -279,7 +279,7 @@ pub mod menu {
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
             .add_systems(OnEnter(GameState::Menu), menu_setup)
-            .add_systems(OnEnter(GameState::Playing), setup_instructions)
+            //.add_systems(OnEnter(GameState::Playing), setup_instructions)
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
             .add_systems(
@@ -299,12 +299,7 @@ pub mod menu {
                 Update,
                 (menu_action, button_system).run_if(in_state(GameState::Menu)),
             )
-            .add_systems(OnEnter(GameState::Pause), pause_menu_setup)
-            .add_systems(
-                Update,
-                ((move_player, update_camera).chain(), player_input)
-                    .run_if(in_state(GameState::Playing)),
-            );
+            .add_systems(OnEnter(GameState::Pause), pause_menu_setup);
     }
 
     /// This enum represents the current menu state.

@@ -1,7 +1,8 @@
-use bevy::prelude::*;
+use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*, window::PresentMode};
 
 use slots_from_hell::components::{
-    entity::add_entities, screens::game_menu::GameMenuPlugin, tilemap::TilemapPlugin,
+    entity::add_entities, player::PlayerPlugin, screens::game_menu::GameMenuPlugin,
+    tilemap::TilemapPlugin,
 };
 
 pub struct StartPlugin;
@@ -15,7 +16,17 @@ impl Plugin for StartPlugin {
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        present_mode: PresentMode::AutoNoVsync,
+                        ..default()
+                    }),
+                    ..default()
+                }),
+            FrameTimeDiagnosticsPlugin::default(),
+            PlayerPlugin,
             TilemapPlugin,
             GameMenuPlugin,
             StartPlugin,

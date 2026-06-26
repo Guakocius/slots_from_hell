@@ -32,7 +32,12 @@ impl Plugin for TilemapPlugin {
 #[derive(Component, Deref, DerefMut)]
 struct UpdateTimer(Timer);
 
-fn setup(mut cmds: Commands, assets: Res<AssetServer>) {
+fn setup(
+    mut cmds: Commands,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     let chunk_size = UVec2::splat(64);
     let tile_display_size = UVec2::splat(8);
     let tile_data: Vec<Option<TileData>> = (0..chunk_size.element_product())
