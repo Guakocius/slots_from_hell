@@ -57,7 +57,7 @@ pub struct Name(
 /// app.add_systems(Startup, add_entities).update();
 /// let entities = app.world().entities().count_spawned();
 ///
-/// assert_eq!(entities, 5);
+/// assert_eq!(entities, 4);
 /// ```
 pub fn add_entities(mut cmds: Commands) {
     ["Asmodeus", "Entity2", "Entity3", "Entity4"]
@@ -78,6 +78,6 @@ mod tests {
 
         let entities = app.world().entities().count_spawned();
         println!("Entities: {:?}", entities);
-        assert_eq!(entities, 5);
+        assert_eq!(entities, 4);
     }
 }

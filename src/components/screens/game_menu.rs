@@ -263,8 +263,6 @@ pub mod menu {
 
     use super::{DisplayQuality, GameState, InGame, Setting, TEXT_COLOR, Volume};
 
-    use crate::components::player::{move_player, player_input, update_camera};
-
     /// Function for generating the game's menu.
     ///
     /// # Examples
