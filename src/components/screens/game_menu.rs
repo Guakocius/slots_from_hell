@@ -71,9 +71,9 @@ pub struct InGame(
 );
 
 /// The plugin for the game menu, having all relevant resources
-/// and systems ([`Volume`], [`DisplayQuality`], [`InGame`],
-/// [`GameState`], [`splash::splash_plugin`],
-/// [`menu::menu_plugin`], [`setup`]).
+/// and systems (`Volume`, `DisplayQuality`, [`InGame`],
+/// [`GameState`], `splash_plugin`,
+/// [`menu::menu_plugin`], `setup`).
 ///
 /// # Examples
 ///
