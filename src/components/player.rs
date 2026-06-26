@@ -3,8 +3,21 @@ use bevy::{color::palettes::css::NAVY, prelude::*};
 
 use crate::{GameState, Name, menu::MenuState};
 
+/// The speed of the player defined as a resource for re-using.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::player::PlayerSpeed;
+///
+/// App::new().insert_resource(PlayerSpeed(100.0));
+/// ```
 #[derive(Resource)]
-struct PlayerSpeed(f32);
+pub struct PlayerSpeed(
+    /// Player speed as a 32 bit floating point number.
+    pub f32,
+);
 
 #[derive(Resource)]
 struct CameraDecayRate(f32);
@@ -22,12 +35,29 @@ struct CameraDecayRate(f32);
 /// ```
 #[derive(Component, Debug, Clone)]
 pub struct Player {
-    name: String,
-    speed: f32,
+    /// The player's name.
+    pub name: String,
+    /// The player's speed.
+    pub speed: f32,
+    /// Player position on the map.
     pub pos: Vec<Vec2>,
 }
 
 impl Player {
+    /// Create a new Player with `name` and `speed` as their specifications.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use slots_from_hell::components::player::Player;
+    ///
+    /// let name = String::from("Player");
+    /// let speed = 100.0;
+    /// let player = Player::new(name, speed);
+    ///
+    /// assert_eq!(player.name, String::from("Player"));
+    /// assert_eq!(player.speed, 100.0);
+    /// ```
     pub fn new(name: String, speed: f32) -> Self {
         Self {
             name,
@@ -37,9 +67,16 @@ impl Player {
     }
 }
 
-#[derive(Resource)]
-pub struct PlayerTimer(Timer);
-
+/// Plugin for the systems used by the [`Player`].
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::player::PlayerPlugin;
+///
+/// App::new().add_plugins((DefaultPlugins, PlayerPlugin));
+/// ```
 #[derive(Debug)]
 pub struct PlayerPlugin;
 
@@ -55,8 +92,6 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    cmds.insert_resource(PlayerTimer(Timer::from_seconds(0.01, TimerMode::Repeating)));
-
     let player = Player::new("Player".to_string(), 300.0);
 
     cmds.spawn((
@@ -95,18 +130,7 @@ pub fn set_player_name(mut query: Query<&mut Name, With<Player>>) {
     }
 }
 
-/// This functions updates the `Position` of the [`Camera`] by aligning it to the
-/// `Player's` coordinates.
-///
-/// # Examples
-///
-/// ```
-/// use bevy::prelude::*;
-/// use slots_from_hell::components::player::update_camera;
-///
-/// App::new().add_systems(Update, update_camera).update();
-/// ```
-pub fn update_camera(
+fn update_camera(
     mut camera: Single<&mut Transform, (With<Camera2d>, Without<Player>)>,
     player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
     time: Res<Time<Fixed>>,
@@ -129,7 +153,7 @@ pub fn update_camera(
 /// use bevy::prelude::*;
 /// use slots_from_hell::components::player::move_player;
 ///
-/// App::new().add_systems(Update, move_player).update();
+/// App::new().add_systems(Update, move_player);
 /// ```
 pub fn move_player(
     mut player: Single<&mut Transform, With<Player>>,
