@@ -1,10 +1,7 @@
 //! A module for specifying the player's core behavior.
-use bevy::{post_process::bloom::Bloom, prelude::*};
+use bevy::prelude::*;
 
-use crate::{
-    GameState, Name,
-    menu::{MenuButtonAction, MenuState},
-};
+use crate::{GameState, Name, menu::MenuState};
 
 const PLAYER_SPEED: f32 = 100.0;
 const CAMERA_DECAY_RATE: f32 = 2.0;
