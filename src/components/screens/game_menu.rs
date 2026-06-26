@@ -1,14 +1,39 @@
+//! This module generates the graphical user interfaces of both
+//! the main menu as well as the pause menu.
+
 use bevy::prelude::*;
 
 const TEXT_COLOR: Color = Color::srgb(0.0, 0.28, 0.73);
 
+/// This enum symbolizes the current game state which is then
+/// handled accordingly.
+///
+/// # Examples
+///
+/// ```
+/// use slots_from_hell::components::screens::game_menu::GameState;
+/// let game_state = &GameState::Splash;
+///
+/// match game_state {
+///     GameState::Splash => println!("Splash"),
+///     GameState::Menu => println!("Menu"),
+///     GameState::Game => println!("Game"),
+///     GameState::Playing => println!("Playing"),
+///     GameState::Pause => println!("Pause"),
+/// }
+/// ```
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 pub enum GameState {
     #[default]
+    /// Default `start screen` game state.
     Splash,
+    /// Currently in the `main menu`.
     Menu,
+    /// `Game` screen.
     Game,
+    /// Currently `playing`.
     Playing,
+    /// Actively `paused the game`.
     Pause,
 }
 
@@ -25,9 +50,39 @@ struct Setting<T>(pub T);
 #[derive(Resource, Debug, PartialEq, Eq, Clone, Copy, Component)]
 struct Volume(pub u32);
 
+/// Structural representation of the current state of the player,
+/// whether they are in game or not.
+///
+/// # Examples
+///
+/// ```
+/// use slots_from_hell::components::screens::game_menu::InGame;
+///
+/// let in_game = InGame(true);
+///
+/// if in_game.0 {
+///     println!("Player is in game.");
+/// }
+/// ```
 #[derive(Resource)]
-pub struct InGame(pub bool);
+pub struct InGame(
+    /// Boolean to check whether the `Player` is in game or not.
+    pub bool,
+);
 
+/// The plugin for the game menu, having all relevant resources
+/// and systems ([`Volume`], [`DisplayQuality`], [`InGame`],
+/// [`GameState`], [`splash::splash_plugin`],
+/// [`menu::menu_plugin`], [`setup`]).
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::screens::game_menu::GameMenuPlugin;
+///
+/// App::new().add_plugins((DefaultPlugins, GameMenuPlugin));
+/// ```
 #[derive(Debug)]
 pub struct GameMenuPlugin;
 
@@ -197,6 +252,7 @@ mod game {
     }
 }
 
+/// This module is for the menu (main menu as well as pause menu).
 pub mod menu {
     use bevy::{
         app::AppExit,
@@ -209,6 +265,17 @@ pub mod menu {
 
     use crate::components::player::{move_player, player_input, setup_instructions, update_camera};
 
+    /// Function for generating the game's menu.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use bevy::prelude::*;
+    /// use slots_from_hell::components::screens::game_menu::menu::menu_plugin;
+    ///
+    /// App::new().add_plugins((DefaultPlugins, menu_plugin));
+    ///
+    /// ```
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
             .add_systems(OnEnter(GameState::Menu), menu_setup)
@@ -240,14 +307,38 @@ pub mod menu {
             );
     }
 
+    /// This enum represents the current menu state.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use slots_from_hell::components::screens::game_menu::menu::MenuState;
+    ///
+    /// let menu_state = MenuState::Main;
+    ///
+    /// match menu_state {
+    ///     MenuState::Main => println!("Main menu."),
+    ///     MenuState::Paused => println!("Pause menu"),
+    ///     MenuState::Settings => println!("Settings menu."),
+    ///     MenuState::SettingsDisplay => println!("Settings display menu."),
+    ///     MenuState::SettingsSound => println!("Settings sound menu."),
+    ///     MenuState::Disabled => println!("Disabled all menus."),
+    /// }
+    /// ```
     #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
     pub enum MenuState {
+        /// Main menu.
         Main,
+        /// Pause menu.
         Paused,
+        /// Settings menu.
         Settings,
+        /// Settings display menu.
         SettingsDisplay,
+        /// Settings sound menu.
         SettingsSound,
         #[default]
+        /// No menu: default state.
         Disabled,
     }
 
@@ -274,15 +365,44 @@ pub mod menu {
     const HOVERED_PRESSED_BUTTON: Color = Color::srgb(0.5, 0.65, 0.5);
     const PRESSED_BUTTON: Color = Color::srgb(0.65, 0.75, 0.65);
 
+    /// The actions the menu buttons do.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use slots_from_hell::components::screens::game_menu::menu::MenuButtonAction;
+    ///
+    /// let menu_button_action = MenuButtonAction::Play;
+    ///
+    /// match menu_button_action {
+    ///     MenuButtonAction::Play => println!("Play."),
+    ///     MenuButtonAction::Continue => println!("Continue."),
+    ///     MenuButtonAction::Settings => println!("Settings."),
+    ///     MenuButtonAction::SettingsDisplay => println!("Settings display."),
+    ///     MenuButtonAction::SettingsSound => println!("Settings sound."),
+    ///     MenuButtonAction::BackToMainMenu => println!("Back to main menu."),
+    ///     MenuButtonAction::BackToSettings => println!("Back to settings."),
+    ///     MenuButtonAction::Quit => println!("Quit."),
+    /// }
+    /// ```
     #[derive(Component)]
     pub enum MenuButtonAction {
+        /// `Play` the game.
         Play,
+        /// `Continue` the game.
         Continue,
+        /// Go into the `settings` menu.
         Settings,
+        /// Go into the `settings display options` menu.
         SettingsDisplay,
+        /// Go into the `settings sound options` menu.
         SettingsSound,
+        /// Go from the `settings menu` back to the `main menu`.
         BackToMainMenu,
+        /// Go from the `settings display` or `settings sound`
+        /// options back to the `settings menu`.
         BackToSettings,
+        /// `Quit` the game.
         Quit,
     }
 
