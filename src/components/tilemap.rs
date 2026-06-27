@@ -29,6 +29,26 @@ impl Plugin for TilemapPlugin {
     }
 }
 
+/// A module representing an already existing World map.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::{prelude::*, sprite_render::TilemapChunk};
+/// use slots_from_hell::components::{screens::game_menu::GameState, tilemap::WorldMap};
+///
+/// fn world_exists(map_query: Query<&TilemapChunk, With<WorldMap>>) {
+///     if map_query.is_empty() {
+///         println!("World map is empty.");
+///     } else {
+///         println!("World map is not empty.");
+///     }
+/// }
+///
+/// App::new()
+///     .add_plugins(DefaultPlugins)
+///     .add_systems(OnEnter(GameState::Playing), world_exists);
+/// ```
 #[derive(Component, Debug)]
 pub struct WorldMap;
 
