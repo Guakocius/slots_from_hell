@@ -98,7 +98,7 @@ impl Plugin for GameMenuPlugin {
 }
 
 fn setup(mut cmds: Commands) {
-    cmds.spawn(Camera2d);
+    cmds.spawn((Camera2d, Msaa::Off));
 }
 
 mod splash {

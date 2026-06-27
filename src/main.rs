@@ -20,7 +20,8 @@ fn main() {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        present_mode: PresentMode::AutoNoVsync,
+                        title: "Slots from Hell".into(),
+                        present_mode: PresentMode::Mailbox,
                         ..default()
                     }),
                     ..default()

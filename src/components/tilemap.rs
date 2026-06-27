@@ -29,15 +29,21 @@ impl Plugin for TilemapPlugin {
     }
 }
 
+#[derive(Component, Debug)]
+pub struct WorldMap;
+
 #[derive(Component, Deref, DerefMut)]
 struct UpdateTimer(Timer);
 
 fn setup(
     mut cmds: Commands,
     assets: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    map_query: Query<&TilemapChunk, With<WorldMap>>,
 ) {
+    if !map_query.is_empty() {
+        return;
+    }
+
     let chunk_size = UVec2::splat(64);
     let tile_display_size = UVec2::splat(8);
     let tile_data: Vec<Option<TileData>> = (0..chunk_size.element_product())
@@ -45,11 +51,12 @@ fn setup(
         .collect();
 
     cmds.spawn((
+        WorldMap,
         TilemapChunk {
             chunk_size,
             tile_display_size,
             tileset: assets.load_with_settings(
-                "textures/map_texture_floor.jpg",
+                "textures/map_texture_floor.png",
                 |settings: &mut ImageLoaderSettings| {
                     settings.array_layout = Some(ImageArrayLayout::RowCount { rows: 4 });
                 },

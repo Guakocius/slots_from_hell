@@ -131,17 +131,27 @@ pub fn set_player_name(mut query: Query<&mut Name, With<Player>>) {
 }
 
 fn update_camera(
-    mut camera: Single<&mut Transform, (With<Camera2d>, Without<Player>)>,
-    player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
-    time: Res<Time<Fixed>>,
-    camera_decay_rate: Res<CameraDecayRate>,
+    mut camera_query: Query<&mut Transform, With<Camera2d>>,
+    player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
 ) {
-    let Vec3 { x, y, .. } = player.translation;
+    let Ok(mut camera_tf) = camera_query.single_mut() else {
+        return;
+    };
+    let Ok(player_tf) = player_query.single() else {
+        return;
+    };
+
+    let target = player_tf.translation;
+    camera_tf.translation = camera_tf.translation.lerp(target, 0.1);
+
+    camera_tf.translation.x = camera_tf.translation.x.round();
+    camera_tf.translation.y = camera_tf.translation.y.round();
+    /*let Vec3 { x, y, .. } = player.translation;
     let direction = Vec3::new(x, y, camera.translation.z);
 
     camera
         .translation
-        .smooth_nudge(&direction, camera_decay_rate.0, time.delta_secs());
+        .smooth_nudge(&direction, camera_decay_rate.0, time.delta_secs());*/
 }
 
 /// This functions adds event handlers to check for the player's input and moves
