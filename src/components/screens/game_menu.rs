@@ -279,6 +279,7 @@ pub mod menu {
             .add_systems(OnEnter(GameState::Menu), menu_setup)
             //.add_systems(OnEnter(GameState::Playing), setup_instructions)
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
+            .add_systems(OnEnter(MenuState::Pause), pause_menu_setup)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
             .add_systems(
                 OnEnter(MenuState::SettingsDisplay),
@@ -297,7 +298,10 @@ pub mod menu {
                 Update,
                 (menu_action, button_system).run_if(in_state(GameState::Menu)),
             )
-            .add_systems(OnEnter(GameState::Pause), pause_menu_setup);
+            .add_systems(
+                Update,
+                (menu_action, button_system).run_if(in_state(GameState::Pause)),
+            );
     }
 
     /// This enum represents the current menu state.
@@ -311,7 +315,7 @@ pub mod menu {
     ///
     /// match menu_state {
     ///     MenuState::Main => println!("Main menu."),
-    ///     MenuState::Paused => println!("Pause menu"),
+    ///     MenuState::Pause => println!("Pause menu"),
     ///     MenuState::Settings => println!("Settings menu."),
     ///     MenuState::SettingsDisplay => println!("Settings display menu."),
     ///     MenuState::SettingsSound => println!("Settings sound menu."),
@@ -323,7 +327,7 @@ pub mod menu {
         /// Main menu.
         Main,
         /// Pause menu.
-        Paused,
+        Pause,
         /// Settings menu.
         Settings,
         /// Settings display menu.
@@ -555,7 +559,7 @@ pub mod menu {
         let icons = generate_icons(asset_server);
 
         cmds.spawn((
-            DespawnOnExit(MenuState::Main),
+            DespawnOnExit(MenuState::Pause),
             Node {
                 width: percent(100),
                 height: percent(100),
@@ -563,7 +567,7 @@ pub mod menu {
                 justify_content: JustifyContent::Center,
                 ..default()
             },
-            OnMainMenuScreen,
+            OnPauseScreen,
             children![(
                 Node {
                     flex_direction: FlexDirection::Column,
@@ -588,7 +592,7 @@ pub mod menu {
                         Button,
                         generator.0.clone(),
                         BackgroundColor(NORMAL_BUTTON),
-                        MenuButtonAction::Play,
+                        MenuButtonAction::Continue,
                         children![
                             (ImageNode::new(icons.0), generator.1.clone()),
                             (

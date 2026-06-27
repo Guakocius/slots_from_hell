@@ -197,6 +197,6 @@ pub fn player_input(
 ) {
     if kb_input.pressed(KeyCode::Escape) {
         game_state.set(GameState::Pause);
-        menu_state.set(MenuState::Main);
+        menu_state.set(MenuState::Pause);
     }
 }
