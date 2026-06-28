@@ -37,17 +37,17 @@ pub enum GameState {
     Pause,
 }
 
-#[derive(Resource, Debug, PartialEq, Eq, Clone, Copy, Component)]
+#[derive(Resource, Debug, PartialEq, Eq, Clone, Copy)]
 enum DisplayQuality {
     Low,
     Medium,
     High,
 }
 
-#[derive(Component)]
+#[derive(Resource)]
 struct Setting<T>(pub T);
 
-#[derive(Resource, Debug, PartialEq, Eq, Clone, Copy, Component)]
+#[derive(Resource, Debug, PartialEq, Eq, Clone, Copy)]
 struct Volume(pub u32);
 
 /// Structural representation of the current state of the player,
@@ -192,7 +192,7 @@ mod game {
                     (
                         Text::new("Back to menu"),
                         TextFont {
-                            font_size: 68.0,
+                            font_size: FontSize::Px(68.0),
                             ..default()
                         },
                         TextColor(TEXT_COLOR),
@@ -211,7 +211,7 @@ mod game {
                             (
                                 TextSpan(format!("Quality: {:?}", *display_quality)),
                                 TextFont {
-                                    font_size: 50.0,
+                                    font_size: FontSize::Px(50.0),
                                     ..default()
                                 },
                                 TextColor(NAVY.into()),
@@ -219,7 +219,7 @@ mod game {
                             (
                                 TextSpan::new(" - "),
                                 TextFont {
-                                    font_size: 50.0,
+                                    font_size: FontSize::Px(50.0),
                                     ..default()
                                 },
                                 TextColor(TEXT_COLOR),
@@ -227,7 +227,7 @@ mod game {
                             (
                                 TextSpan(format!("Volume: {:?}", *volume)),
                                 TextFont {
-                                    font_size: 50.0,
+                                    font_size: FontSize::Px(50.0),
                                     ..default()
                                 },
                                 TextColor(SILVER.into()),
@@ -419,7 +419,9 @@ pub mod menu {
         }
     }
 
-    fn setting_button<T: Resource + Component + PartialEq + Copy>(
+    use bevy::ecs::component::Mutable;
+
+    fn setting_button<T: Resource + Component<Mutability = Mutable> + PartialEq + Copy>(
         interaction_query: Query<
             (&Interaction, &Setting<T>, Entity),
             (Changed<Interaction>, With<Button>),
@@ -460,7 +462,7 @@ pub mod menu {
             ..default()
         };
         let button_text_font = TextFont {
-            font_size: 33.0,
+            font_size: FontSize::Px(33.0),
             ..default()
         };
 
@@ -502,7 +504,7 @@ pub mod menu {
                     (
                         Text::new("2D Horror Game Main Menu"),
                         TextFont {
-                            font_size: 68.0,
+                            font_size: FontSize::Px(68.0),
                             ..default()
                         },
                         TextColor(TEXT_COLOR),
@@ -579,7 +581,7 @@ pub mod menu {
                     (
                         Text::new("Paused"),
                         TextFont {
-                            font_size: 68.0,
+                            font_size: FontSize::Px(68.0),
                             ..default()
                         },
                         TextColor(TEXT_COLOR),
@@ -686,7 +688,7 @@ pub mod menu {
         fn button_text_style() -> impl Bundle {
             (
                 TextFont {
-                    font_size: 33.0,
+                    font_size: FontSize::Px(33.0),
                     ..default()
                 },
                 TextColor(TEXT_COLOR),
@@ -770,7 +772,7 @@ pub mod menu {
         };
         let button_text_style = (
             TextFont {
-                font_size: 33.0,
+                font_size: FontSize::Px(33.0),
                 ..default()
             },
             TextColor(TEXT_COLOR),
