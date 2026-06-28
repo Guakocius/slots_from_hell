@@ -91,3 +91,8 @@ fn customize_config(input: Res<ButtonInput<KeyCode>>, mut overlay: ResMut<FpsOve
         overlay.enabled = !overlay.enabled;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+}

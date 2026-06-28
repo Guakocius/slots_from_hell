@@ -28,10 +28,12 @@ struct CameraDecayRate(f32);
 /// # Examples
 ///
 /// ```
-/// use bevy::prelude::*;
-/// use slots_from_hell::components::player::{Player, set_player_name};
+/// use slots_from_hell::components::player::Player;
 ///
-/// App::new().add_systems(Update, set_player_name).update();
+/// let player = Player::new("John Doe".into(), 100.0);
+///
+/// assert_eq!(player.name, "John Doe".to_string());
+/// assert_eq!(player.speed, 100.0);
 /// ```
 #[derive(Component, Debug, Clone)]
 pub struct Player {
@@ -114,22 +116,6 @@ fn setup(
     cmds.insert_resource(CameraDecayRate(2.0));
 }
 
-/// Sets the [`Name`] of the [`Player`].
-///
-/// # Examples
-///
-/// ```
-/// use bevy::prelude::*;
-/// use slots_from_hell::components::player::set_player_name;
-///
-/// App::new().add_systems(Update, set_player_name).update();
-/// ```
-pub fn set_player_name(mut query: Query<&mut Name, With<Player>>) {
-    if let Some(mut name) = (&mut query).into_iter().next() {
-        name.0 = "Player2".to_string();
-    }
-}
-
 fn update_camera(
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
     player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
@@ -209,4 +195,49 @@ pub fn player_input(
         game_state.set(GameState::Pause);
         menu_state.set(MenuState::Pause);
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_player_new() {
+        let player = Player::new("Testname".into(), 100.0);
+
+        assert_eq!(player.name, "Testname".to_string());
+        assert_eq!(player.speed, 100.0);
+    }
+
+    #[test]
+    fn test_player_plugin_build() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            bevy::state::app::StatesPlugin,
+            AssetPlugin::default(),
+            PlayerPlugin,
+        ))
+        .init_asset::<Mesh>()
+        .init_asset::<ColorMaterial>()
+        .init_state::<GameState>();
+        app.world_mut()
+            .resource_mut::<NextState<GameState>>()
+            .set(GameState::Playing);
+        app.update();
+
+        let player_count = app.world_mut().query::<&Player>().iter(app.world()).count();
+
+        assert!(app.is_plugin_added::<PlayerPlugin>());
+        assert_eq!(player_count, 1);
+    }
+
+    #[test]
+    fn test_update_camera() {}
+
+    #[test]
+    fn test_player_movement() {}
+
+    #[test]
+    fn test_player_input() {}
 }
