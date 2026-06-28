@@ -28,8 +28,14 @@ pub mod components {
 
     /// Public module for all screens and menus.
     pub mod screens {
+        pub mod fps_overlay;
         pub mod game_menu;
     }
 }
 
-pub use components::{entity::*, player::*, screens::game_menu::*, tilemap::*};
+pub use components::{
+    entity::*,
+    player::*,
+    screens::{fps_overlay::*, game_menu::*},
+    tilemap::*,
+};

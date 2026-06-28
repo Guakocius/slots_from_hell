@@ -1,6 +1,7 @@
 //! This module generates the graphical user interfaces of both
 //! the main menu as well as the pause menu.
 
+use crate::FpsPlugin;
 use bevy::prelude::*;
 
 const TEXT_COLOR: Color = Color::srgb(0.0, 0.28, 0.73);
@@ -261,7 +262,7 @@ pub mod menu {
         prelude::*,
     };
 
-    use super::{DisplayQuality, GameState, InGame, Setting, TEXT_COLOR, Volume};
+    use super::{DisplayQuality, FpsPlugin, GameState, InGame, Setting, TEXT_COLOR, Volume};
 
     /// Function for generating the game's menu.
     ///
@@ -276,8 +277,8 @@ pub mod menu {
     /// ```
     pub fn menu_plugin(app: &mut App) {
         app.init_state::<MenuState>()
+            .add_plugins(FpsPlugin)
             .add_systems(OnEnter(GameState::Menu), menu_setup)
-            //.add_systems(OnEnter(GameState::Playing), setup_instructions)
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(OnEnter(MenuState::Pause), pause_menu_setup)
             .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)

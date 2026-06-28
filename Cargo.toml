@@ -1,10 +1,20 @@
 [package]
 name = "slots_from_hell"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 
 [dependencies]
-bevy = { version = "0.19.0", default-features = false, features = ["2d", "debug", "ui", "default_font", "bevy_winit", "bevy_core_pipeline", "multi_threaded", "jpeg"] }
+bevy = { version = "0.19.0", default-features = false, features = [
+  "2d",
+  "debug",
+  "ui",
+  "bevy_dev_tools",
+  "default_font",
+  "bevy_winit",
+  "bevy_core_pipeline",
+  "multi_threaded",
+  "jpeg",
+] }
 chacha20 = "0.10.0"
 gpu-alloc-types = "0.3.1"
 rand = "0.10.1"
