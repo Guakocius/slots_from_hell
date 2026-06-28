@@ -51,13 +51,17 @@ pub struct Name(
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use slots_from_hell::components::entity::add_entities;
+/// use slots_from_hell::components::entity::{ add_entities, Entity};
 /// let mut app = App::new();
 ///
 /// app.add_systems(Startup, add_entities).update();
-/// let entities = app.world().entities().count_spawned();
+/// let count = app
+///     .world_mut()
+///     .query_filtered::<(), With<Entity>>()
+///     .iter(app.world())
+///     .count();
 ///
-/// assert_eq!(entities, 4);
+/// assert_eq!(count, 4);
 /// ```
 pub fn add_entities(mut cmds: Commands) {
     ["Asmodeus", "Entity2", "Entity3", "Entity4"]
@@ -76,8 +80,12 @@ mod tests {
         let mut app = App::new();
         app.add_systems(Startup, add_entities).update();
 
-        let entities = app.world().entities().count_spawned();
-        println!("Entities: {:?}", entities);
-        assert_eq!(entities, 4);
+        let count = app
+            .world_mut()
+            .query_filtered::<(), With<Entity>>()
+            .iter(app.world())
+            .count();
+        println!("Entities: {:?}", count);
+        assert_eq!(count, 4);
     }
 }
