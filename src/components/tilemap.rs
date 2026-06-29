@@ -61,22 +61,69 @@ fn setup(
         return;
     }
 
-    let chunk_size = UVec2::splat(48);
-    let tile_display_size = UVec2::splat(8);
+    let chunk_size = UVec2::splat(16);
+    let tile_display_size = UVec2::splat(64);
     let tile_data: Vec<Option<TileData>> = (0..chunk_size.element_product())
         .map(|i| Some(TileData::from_tileset_index(i as u16)))
         .collect();
 
+    // Rooms
     [
         (
             Vec3::new(0.0, 0.0, -200.0),
             "textures/map_texture_floor.png",
         ),
         (
-            Vec3::new(384.0, 0.0, -200.0),
+            Vec3::new(1024.0, 0.0, -200.0),
+            "textures/map_texture_kitchen.png",
+        ),
+        (
+            Vec3::new(-1024.0, 0.0, -200.0),
+            "textures/map_texture_kitchen.png",
+        ),
+        (
+            Vec3::new(0.0, 1024.0, -200.0),
+            "textures/map_texture_kitchen.png",
+        ),
+        (
+            Vec3::new(0.0, -1024.0, -200.0),
+            "textures/map_texture_kitchen.png",
+        ),
+        (
+            Vec3::new(1024.0, 1024.0, -200.0),
+            "textures/map_texture_kitchen.png",
+        ),
+        (
+            Vec3::new(1024.0, -1024.0, -200.0),
             "textures/map_texture_kitchen.png",
         ),
     ]
+    .iter()
+    .for_each(|(v, p)| {
+        cmds.spawn((
+            WorldMap,
+            TilemapChunk {
+                chunk_size,
+                tile_display_size,
+                tileset: assets
+                    .load_builder()
+                    .with_settings(|settings: &mut ImageLoaderSettings| {
+                        settings.array_layout = Some(ImageArrayLayout::RowCount { rows: 4 })
+                    })
+                    .load(*p),
+
+                ..default()
+            },
+            TilemapChunkTileData(tile_data.clone()),
+            Transform::from_translation(*v),
+        ));
+    });
+
+    // Walls
+    [(
+        Vec3::new(384.0, 0.0, -200.0),
+        "textures/map_texture_floor.png",
+    )]
     .iter()
     .for_each(|(v, p)| {
         cmds.spawn((

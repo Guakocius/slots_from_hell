@@ -22,7 +22,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 /// All game components packed into a public module.
 pub mod components {
-    pub mod entity;
+    pub mod enemy;
     pub mod player;
     pub mod tilemap;
 
@@ -34,7 +34,7 @@ pub mod components {
 }
 
 pub use components::{
-    entity::*,
+    enemy::*,
     player::*,
     screens::{fps_overlay::*, game_menu::*},
     tilemap::*,
