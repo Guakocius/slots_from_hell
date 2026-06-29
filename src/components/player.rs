@@ -94,7 +94,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let player = Player::new("Player".to_string(), 300.0);
+    let player = Player::new("Player".to_string(), 200.0);
 
     cmds.spawn((
         Mesh2d(meshes.add(Capsule2d::new(10.0, 8.0))),
@@ -107,7 +107,6 @@ fn setup(
         Node {
             position_type: PositionType::Absolute,
             top: px(20),
-            left: px(10),
             ..default()
         },
     ));
@@ -205,7 +204,7 @@ mod tests {
     fn test_player_new() {
         let player = Player::new("Testname".into(), 100.0);
 
-        assert_eq!(player.name, "Testname".to_string());
+        assert_eq!(player.name, String::from("Testname"));
         assert_eq!(player.speed, 100.0);
     }
 

@@ -55,8 +55,12 @@ fn setup(mut cmds: Commands) {
             "Press 1 to toggle the overlay color.\n",
             "Press 2 to decrease the overlay size.\n",
             "Press 3 to increase the overlay size.\n",
-            "Press 4 to toggle the text visibility.\n",
+            "Press 4 to toggle the text visibility.",
         )),
+        TextFont {
+            font_size: FontSize::Px(15.0),
+            ..default()
+        },
         Node {
             position_type: PositionType::Absolute,
             bottom: px(12),
