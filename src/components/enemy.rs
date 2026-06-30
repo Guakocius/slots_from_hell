@@ -2,10 +2,6 @@
 
 #[doc(inline)]
 use bevy::{color::palettes::css::DARK_MAGENTA, prelude::*};
-use chacha20::cipher::typenum::Square;
-
-#[doc(no_inline)]
-use super::player::Player;
 
 /// Component representing an enemy `Enemy`.
 ///
@@ -20,7 +16,16 @@ use super::player::Player;
 /// app.world().entities();
 /// ```
 #[derive(Component)]
-pub struct Enemy;
+pub struct Enemy {
+    name: Name,
+    pos: Vec3,
+}
+
+impl Enemy {
+    fn new(name: Name, pos: Vec3) -> Self {
+        Self { name, pos }
+    }
+}
 
 /// Component representing the unique identifier name of an [`Enemy`].
 ///
@@ -40,7 +45,7 @@ pub struct Enemy;
 ///     .add_systems(Update, get_entity_names)
 ///     .update();
 /// ```
-#[derive(Component)]
+#[derive(Component, Clone, Debug)]
 pub struct Name(
     /// The `Name String`.
     pub String,
@@ -70,19 +75,24 @@ pub fn add_enemies(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     [
-        ("Asmodeus", Vec3::new(100.0, 100.0, 0.0)),
-        ("Beelzebub", Vec3::new(-100.0, -100.0, 0.0)),
-        ("Poltergeist", Vec3::new(250.0, 250.0, 0.0)),
-        ("Lucifer", Vec3::new(-250.0, -250.0, 0.0)),
+        Enemy::new(Name("Asmodeus".to_string()), Vec3::new(100.0, 100.0, 0.0)),
+        Enemy::new(
+            Name("Beelzebub".to_string()),
+            Vec3::new(-100.0, -100.0, 0.0),
+        ),
+        Enemy::new(
+            Name("Poltergeist".to_string()),
+            Vec3::new(250.0, 250.0, 0.0),
+        ),
+        Enemy::new(Name("Lucifer".to_string()), Vec3::new(-250.0, -250.0, 0.0)),
     ]
     .iter()
-    .for_each(|(e, v)| {
+    .for_each(|e| {
         cmds.spawn((
-            Enemy,
-            Name(e.to_string()),
+            e.name.clone(),
             Mesh2d(meshes.add(Circle::new(10.0))),
             MeshMaterial2d(materials.add(Color::from(DARK_MAGENTA))),
-            Transform::from_translation(*v),
+            Transform::from_translation(e.pos),
         ));
     })
 }
@@ -94,6 +104,7 @@ mod tests {
     #[test]
     fn test_add_enemies() {
         let mut app = App::new();
+
         app.add_systems(Startup, add_enemies).update();
 
         let count = app
