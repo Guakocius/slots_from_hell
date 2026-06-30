@@ -13,7 +13,7 @@ use crate::{GameState, Name, menu::MenuState};
 ///
 /// App::new().insert_resource(PlayerSpeed(100.0));
 /// ```
-#[derive(Resource)]
+#[derive(Resource, Debug, Clone)]
 pub struct PlayerSpeed(
     /// Player speed as a 32 bit floating point number.
     pub f32,
@@ -40,9 +40,9 @@ pub struct Player {
     /// The player's name.
     pub name: String,
     /// The player's speed.
-    pub speed: f32,
+    pub speed: PlayerSpeed,
     /// Player position on the map.
-    pub pos: Vec<Vec2>,
+    pub pos: Vec3,
 }
 
 impl Player {
@@ -60,12 +60,8 @@ impl Player {
     /// assert_eq!(player.name, String::from("Player"));
     /// assert_eq!(player.speed, 100.0);
     /// ```
-    pub fn new(name: String, speed: f32) -> Self {
-        Self {
-            name,
-            speed,
-            pos: Vec::new(),
-        }
+    pub fn new(name: String, speed: PlayerSpeed, pos: Vec3) -> Self {
+        Self { name, speed, pos }
     }
 }
 
@@ -94,7 +90,11 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let player = Player::new("Player".to_string(), 200.0);
+    let player = Player::new(
+        "Player".to_string(),
+        PlayerSpeed(200.0),
+        Vec3::new(0.0, 0.0, 0.0),
+    );
 
     cmds.spawn((
         Mesh2d(meshes.add(Capsule2d::new(10.0, 8.0))),
@@ -111,7 +111,7 @@ fn setup(
         },
     ));
 
-    cmds.insert_resource(PlayerSpeed(player.speed));
+    cmds.insert_resource(PlayerSpeed(player.speed.0));
     cmds.insert_resource(CameraDecayRate(2.0));
 }
 
@@ -131,12 +131,6 @@ fn update_camera(
 
     camera_tf.translation.x = camera_tf.translation.x.round();
     camera_tf.translation.y = camera_tf.translation.y.round();
-    /*let Vec3 { x, y, .. } = player.translation;
-    let direction = Vec3::new(x, y, camera.translation.z);
-
-    camera
-        .translation
-        .smooth_nudge(&direction, camera_decay_rate.0, time.delta_secs());*/
 }
 
 /// This functions adds event handlers to check for the player's input and moves
@@ -202,10 +196,10 @@ mod tests {
 
     #[test]
     fn test_player_new() {
-        let player = Player::new("Testname".into(), 100.0);
+        let player = Player::new("Testname".into(), PlayerSpeed(100.0), Vec3::ZERO);
 
         assert_eq!(player.name, String::from("Testname"));
-        assert_eq!(player.speed, 100.0);
+        assert_eq!(player.speed.0, 100.0);
     }
 
     #[test]
