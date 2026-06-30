@@ -79,23 +79,27 @@ fn setup(
         ),
         (
             Vec3::new(-1024.0, 0.0, -200.0),
-            "textures/map_texture_kitchen.png",
+            "textures/map_texture_pianists_room.png",
         ),
         (
             Vec3::new(0.0, 1024.0, -200.0),
-            "textures/map_texture_kitchen.png",
+            "textures/map_texture_wooden1.png",
         ),
         (
             Vec3::new(0.0, -1024.0, -200.0),
-            "textures/map_texture_kitchen.png",
+            "textures/map_texture_wooden2.png",
         ),
         (
             Vec3::new(1024.0, 1024.0, -200.0),
-            "textures/map_texture_kitchen.png",
+            "textures/map_texture_wooden3.png",
         ),
         (
             Vec3::new(1024.0, -1024.0, -200.0),
-            "textures/map_texture_kitchen.png",
+            "textures/map_texture_bricks.png",
+        ),
+        (
+            Vec3::new(-1024.0, -1024.0, -200.0),
+            "textures/map_texture_oldbricks.png",
         ),
     ]
     .iter()

@@ -75,16 +75,19 @@ pub fn add_enemies(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     [
-        Enemy::new(Name("Asmodeus".to_string()), Vec3::new(100.0, 100.0, 0.0)),
+        Enemy::new(
+            Name("Asmodeus".to_string()),
+            Vec3::new(1024.0, -1024.0, 0.0),
+        ),
         Enemy::new(
             Name("Beelzebub".to_string()),
-            Vec3::new(-100.0, -100.0, 0.0),
+            Vec3::new(-1024.0, -1024.0, 0.0),
         ),
         Enemy::new(
             Name("Poltergeist".to_string()),
-            Vec3::new(250.0, 250.0, 0.0),
+            Vec3::new(1024.0, 1024.0, 0.0),
         ),
-        Enemy::new(Name("Lucifer".to_string()), Vec3::new(-250.0, -250.0, 0.0)),
+        Enemy::new(Name("Lucifer".to_string()), Vec3::new(-1024.0, 0.0, 0.0)),
     ]
     .iter()
     .for_each(|e| {
