@@ -16,6 +16,7 @@ bevy = { version = "0.19.0", default-features = false, features = [
   "jpeg",
 ] }
 gpu-alloc-types = "0.3.1"
+rand = "0.10.2"
 
 [profile.dev]
 debug = 0

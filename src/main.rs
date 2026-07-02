@@ -1,7 +1,7 @@
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*, window::PresentMode};
 
 use slots_from_hell::components::{
-    enemy::add_enemies, player::PlayerPlugin, screens::game_menu::GameMenuPlugin,
+    enemy::EnemyPlugin, player::PlayerPlugin, screens::game_menu::GameMenuPlugin,
     tilemap::TilemapPlugin,
 };
 
@@ -9,13 +9,7 @@ pub struct StartPlugin;
 
 impl Plugin for StartPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, add_enemies);
-    }
-}
-
-fn main() {
-    App::new()
-        .add_plugins((
+        app.add_plugins((
             DefaultPlugins
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
@@ -27,10 +21,14 @@ fn main() {
                     ..default()
                 }),
             FrameTimeDiagnosticsPlugin::default(),
-            PlayerPlugin,
-            TilemapPlugin,
             GameMenuPlugin,
-            StartPlugin,
-        ))
-        .run();
+            PlayerPlugin,
+            EnemyPlugin,
+            TilemapPlugin,
+        ));
+    }
+}
+
+fn main() {
+    App::new().add_plugins(StartPlugin).run();
 }
