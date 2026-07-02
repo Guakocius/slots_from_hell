@@ -205,6 +205,8 @@ fn setup(
         Vec2::splat(1024.0),
         TILE_SIZE,
         DoorSides {
+            top: true,
+            bottom: true,
             skip_left: true,
             ..default()
         },
@@ -216,6 +218,7 @@ fn setup(
         Vec2::splat(1024.0),
         TILE_SIZE,
         DoorSides {
+            bottom: true,
             skip_right: true,
             ..default()
         },
@@ -227,6 +230,7 @@ fn setup(
         Vec2::splat(1024.0),
         TILE_SIZE,
         DoorSides {
+            right: true,
             skip_bottom: true,
             ..default()
         },
@@ -238,6 +242,8 @@ fn setup(
         Vec2::splat(1024.0),
         TILE_SIZE,
         DoorSides {
+            left: true,
+            right: true,
             skip_top: true,
             ..default()
         },
@@ -355,10 +361,19 @@ fn setup(
 
     // Doors
     [
+        // Main room doors
         Door::new(Vec3::new(480.0, 0.0, 0.0)),
         Door::new(Vec3::new(0.0, -480.0, 0.0)),
         Door::new(Vec3::new(-480.0, 0.0, 0.0)),
         Door::new(Vec3::new(0.0, 480.0, 0.0)),
+        // Bottom doors
+        Door::new(Vec3::new(-1024.0, -480.0, 0.0)),
+        Door::new(Vec3::new(-480.0, -1024.0, 0.0)),
+        Door::new(Vec3::new(480.0, -1024.0, 0.0)),
+        Door::new(Vec3::new(1024.0, -480.0, 0.0)),
+        // Top doors
+        Door::new(Vec3::new(480.0, 1024.0, 0.0)),
+        Door::new(Vec3::new(1024.0, 480.0, 0.0)),
     ]
     .iter()
     .for_each(|d| {

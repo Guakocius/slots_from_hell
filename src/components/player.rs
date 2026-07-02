@@ -92,7 +92,7 @@ fn setup(
 ) {
     let player = Player::new(
         "Player".to_string(),
-        PlayerSpeed(200.0),
+        PlayerSpeed(300.0),
         Vec3::new(0.0, 0.0, 0.0),
     );
 
