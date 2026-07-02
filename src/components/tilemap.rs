@@ -89,6 +89,47 @@ impl Wall {
     }
 }
 
+#[derive(Clone, Debug, Default)]
+pub struct DoorSides {
+    pub top: bool,
+    pub bottom: bool,
+    pub left: bool,
+    pub right: bool,
+}
+
+fn generate_walls(center: Vec2, size: Vec2, tile_size: f32, doors: DoorSides) -> Vec<Wall> {
+    let half = size / 2.0;
+    let mut walls = Vec::new();
+
+    for (has_door, y) in [
+        (doors.bottom, center.y - half.y),
+        (doors.top, center.y + half.y),
+    ] {
+        if has_door {
+            let seg = (size.x - tile_size) / 2.0;
+            let off = (tile_size + seg) / 2.0;
+            walls.push(Wall::new(tile_size, seg, Vec3::new(center.x - off, y, 0.0)));
+            walls.push(Wall::new(tile_size, seg, Vec3::new(center.x + off, y, 0.0)));
+        } else {
+            walls.push(Wall::new(tile_size, size.y, Vec3::new(center.x, y, 0.0)));
+        }
+    }
+
+    for (has_door, x) in [
+        (doors.left, center.x - half.x),
+        (doors.right, center.x + half.x),
+    ] {
+        if has_door {
+            let seg = (size.y - tile_size) / 2.0;
+            let off = (tile_size + seg) / 2.0;
+            walls.push(Wall::new(tile_size, seg, Vec3::new(x, center.y - off, 0.0)));
+            walls.push(Wall::new(tile_size, seg, Vec3::new(x, center.y + off, 0.0)));
+        } else {
+            walls.push(Wall::new(tile_size, size.y, Vec3::new(x, center.y, 0.0)));
+        }
+    }
+    walls
+}
 fn setup(
     mut cmds: Commands,
     assets: Res<AssetServer>,
@@ -97,6 +138,33 @@ fn setup(
     if !map_query.is_empty() {
         return;
     }
+
+    const TILE_SIZE: f32 = 64.0;
+
+    // Main room walls
+    let mut walls = Vec::new();
+    walls.extend(generate_walls(
+        Vec2::ZERO,
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            top: true,
+            bottom: true,
+            left: true,
+            right: true,
+        },
+    ));
+
+    // Right room walls
+    walls.extend(generate_walls(
+        Vec2::new(1024.0, 0.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            left: true,
+            ..default()
+        },
+    ));
 
     let chunk_size = UVec2::splat(16);
     let tile_display_size = UVec2::splat(64);
@@ -161,22 +229,7 @@ fn setup(
     });
 
     // Walls
-    [
-        // Main room
-        Wall::new(64.0, 448.0, Vec3::new(512.0, -256.0, 0.0)),
-        Wall::new(64.0, 448.0, Vec3::new(512.0, 256.0, 0.0)),
-        Wall::new(448.0, 64.0, Vec3::new(256.0, -512.0, 0.0)),
-        Wall::new(448.0, 64.0, Vec3::new(-256.0, -512.0, 0.0)),
-        Wall::new(64.0, 448.0, Vec3::new(-512.0, -256.0, 0.0)),
-        Wall::new(64.0, 448.0, Vec3::new(-512.0, 256.0, 0.0)),
-        Wall::new(448.0, 64.0, Vec3::new(-256.0, 512.0, 0.0)),
-        Wall::new(448.0, 64.0, Vec3::new(256.0, 512.0, 0.0)),
-        //
-        Wall::new(448.0, 64.0, Vec3::new(704.0, -512.0, 0.0)),
-        Wall::new(448.0, 64.0, Vec3::new(704.0, 512.0, 0.0)),
-    ]
-    .iter()
-    .for_each(|w| {
+    walls.iter().for_each(|w| {
         cmds.spawn((
             Sprite {
                 image: assets.load(&w.texture),
