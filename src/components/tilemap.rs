@@ -5,6 +5,7 @@ use bevy::{
     image::{ImageArrayLayout, ImageLoaderSettings},
     prelude::*,
     sprite_render::{TileData, TilemapChunk, TilemapChunkTileData},
+    ui_render::NodeType::Rect,
 };
 
 use super::screens::game_menu::{GameState, InGame};
@@ -51,6 +52,42 @@ impl Plugin for TilemapPlugin {
 /// ```
 #[derive(Component, Debug)]
 pub struct WorldMap;
+
+#[derive(Component, Debug)]
+pub struct Wall {
+    height: f32,
+    width: f32,
+    pos: Vec3,
+    texture: String,
+}
+
+#[derive(Component, Debug)]
+pub struct Door {
+    height: f32,
+    width: f32,
+    pos: Vec3,
+}
+
+impl Door {
+    fn new(pos: Vec3) -> Self {
+        Self {
+            height: 64.0,
+            width: 64.0,
+            pos,
+        }
+    }
+}
+
+impl Wall {
+    fn new(height: f32, width: f32, pos: Vec3) -> Self {
+        Self {
+            height,
+            width,
+            pos,
+            texture: String::from("textures/map_texture_wall_concrete.png"),
+        }
+    }
+}
 
 fn setup(
     mut cmds: Commands,
@@ -124,28 +161,48 @@ fn setup(
     });
 
     // Walls
-    [(
-        Vec3::new(384.0, 0.0, -200.0),
-        "textures/map_texture_floor.png",
-    )]
+    [
+        // Main room
+        Wall::new(64.0, 448.0, Vec3::new(512.0, -256.0, 0.0)),
+        Wall::new(64.0, 448.0, Vec3::new(512.0, 256.0, 0.0)),
+        Wall::new(448.0, 64.0, Vec3::new(256.0, -512.0, 0.0)),
+        Wall::new(448.0, 64.0, Vec3::new(-256.0, -512.0, 0.0)),
+        Wall::new(64.0, 448.0, Vec3::new(-512.0, -256.0, 0.0)),
+        Wall::new(64.0, 448.0, Vec3::new(-512.0, 256.0, 0.0)),
+        Wall::new(448.0, 64.0, Vec3::new(-256.0, 512.0, 0.0)),
+        Wall::new(448.0, 64.0, Vec3::new(256.0, 512.0, 0.0)),
+        //
+        Wall::new(448.0, 64.0, Vec3::new(704.0, -512.0, 0.0)),
+        Wall::new(448.0, 64.0, Vec3::new(704.0, 512.0, 0.0)),
+    ]
     .iter()
-    .for_each(|(v, p)| {
+    .for_each(|w| {
         cmds.spawn((
-            WorldMap,
-            TilemapChunk {
-                chunk_size,
-                tile_display_size,
-                tileset: assets
-                    .load_builder()
-                    .with_settings(|settings: &mut ImageLoaderSettings| {
-                        settings.array_layout = Some(ImageArrayLayout::RowCount { rows: 4 })
-                    })
-                    .load(*p),
-
+            Sprite {
+                image: assets.load(&w.texture),
+                custom_size: Some(Vec2::new(w.height, w.width)),
                 ..default()
             },
-            TilemapChunkTileData(tile_data.clone()),
-            Transform::from_translation(*v),
+            Transform::from_translation(w.pos),
+        ));
+    });
+
+    // Doors
+    [
+        Door::new(Vec3::new(512.0, 0.0, 0.0)),
+        Door::new(Vec3::new(0.0, -512.0, 0.0)),
+        Door::new(Vec3::new(-512.0, 0.0, 0.0)),
+        Door::new(Vec3::new(0.0, 512.0, 0.0)),
+    ]
+    .iter()
+    .for_each(|d| {
+        cmds.spawn((
+            Sprite {
+                color: Color::srgb(1.0, 0.0, 0.0),
+                custom_size: Some(Vec2::new(d.width, d.height)),
+                ..default()
+            },
+            Transform::from_translation(d.pos),
         ));
     })
 }
