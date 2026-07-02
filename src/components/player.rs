@@ -1,7 +1,7 @@
 //! A module for specifying the player's core behavior.
 use bevy::{color::palettes::css::NAVY, prelude::*};
 
-use crate::{GameState, Name, menu::MenuState};
+use crate::{GameState, Name, Wall, check_collision, menu::MenuState};
 
 /// The speed of the player defined as a resource for re-using.
 ///
@@ -80,7 +80,8 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup)
+        app.insert_resource(PlayerSpeed(300.0))
+            .add_systems(OnEnter(GameState::Playing), setup)
             .add_systems(FixedUpdate, (move_player, update_camera));
     }
 }
@@ -145,11 +146,16 @@ fn update_camera(
 /// App::new().add_systems(Update, move_player);
 /// ```
 pub fn move_player(
-    mut player: Single<&mut Transform, With<Player>>,
+    mut player_query: Query<&mut Transform, With<Player>>,
+    wall_query: Query<(&Transform, &Wall), Without<Player>>,
     speed: Res<PlayerSpeed>,
     time: Res<Time<Fixed>>,
     kb_input: Res<ButtonInput<KeyCode>>,
 ) {
+    let Ok(mut transform) = player_query.single_mut() else {
+        return;
+    };
+
     let mut direction = Vec2::ZERO;
 
     if kb_input.pressed(KeyCode::KeyW) {
@@ -166,7 +172,20 @@ pub fn move_player(
     }
 
     let move_delta = direction.normalize_or_zero() * speed.0 * time.delta_secs();
-    player.translation += move_delta.extend(0.0);
+
+    let new_pos = transform.translation + move_delta.extend(0.0);
+    let player_size = Vec2::new(20.0, 20.0);
+
+    let mut collision = false;
+    for (wall_tf, wall) in &wall_query {
+        if check_collision(new_pos, player_size, wall_tf, wall) {
+            collision = true;
+            break;
+        }
+    }
+    if !collision {
+        transform.translation = new_pos;
+    }
 }
 
 /// Checks for player input and handles the game logic accordingly.

@@ -60,6 +60,22 @@ pub struct Wall {
     texture: String,
 }
 
+pub fn check_collision(pos: Vec3, size: Vec2, wall_transform: &Transform, wall: &Wall) -> bool {
+    let wall_pos = wall_transform.translation;
+    let wall_size = Vec2::new(wall.height, wall.width);
+
+    let pos_min = Vec2::new(pos.x - size.x / 2.0, pos.y - size.y / 2.0);
+    let pos_max = Vec2::new(pos.x + size.x / 2.0, pos.y + size.y / 2.0);
+
+    let wall_min = wall_pos.truncate() - wall_size / 2.0;
+    let wall_max = wall_pos.truncate() + wall_size / 2.0;
+
+    pos_min.x < wall_max.x
+        && pos_max.x > wall_min.x
+        && pos_min.y < wall_max.y
+        && pos_max.y > wall_min.y
+}
+
 #[derive(Component, Debug)]
 pub struct Door {
     height: f32,
@@ -350,6 +366,7 @@ fn setup(
     // Walls
     walls.iter().for_each(|w| {
         cmds.spawn((
+            Wall::new(w.height.clone(), w.width.clone(), w.pos.clone()),
             Sprite {
                 image: assets.load(&w.texture),
                 custom_size: Some(Vec2::new(w.height, w.width)),
