@@ -106,7 +106,13 @@ fn generate_walls(center: Vec2, size: Vec2, tile_size: f32, doors: DoorSides) ->
     let inset = half - Vec2::splat(tile_size / 2.0);
     let mut walls = Vec::new();
 
-    for (has_door, y) in [(doors.bottom, -inset.y), (doors.top, inset.y)] {
+    for (skip, has_door, y) in [
+        (doors.skip_bottom, doors.bottom, -inset.y),
+        (doors.skip_top, doors.top, inset.y),
+    ] {
+        if skip {
+            continue;
+        }
         if has_door {
             let seg = (size.x - tile_size) / 2.0;
             let off = (tile_size + seg) / 2.0;
@@ -199,6 +205,75 @@ fn setup(
         Vec2::splat(1024.0),
         TILE_SIZE,
         DoorSides {
+            skip_left: true,
+            ..default()
+        },
+    ));
+
+    // Left room walls
+    walls.extend(generate_walls(
+        Vec2::new(-1024.0, 0.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            skip_right: true,
+            ..default()
+        },
+    ));
+
+    // Top room walls
+    walls.extend(generate_walls(
+        Vec2::new(0.0, 1024.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            skip_bottom: true,
+            ..default()
+        },
+    ));
+
+    // Bottom room walls
+    walls.extend(generate_walls(
+        Vec2::new(0.0, -1024.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            skip_top: true,
+            ..default()
+        },
+    ));
+
+    // Top right room walls
+    walls.extend(generate_walls(
+        Vec2::new(1024.0, 1024.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            skip_left: true,
+            skip_bottom: true,
+            ..default()
+        },
+    ));
+
+    // Bottom left room walls
+    walls.extend(generate_walls(
+        Vec2::new(-1024.0, -1024.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            skip_right: true,
+            skip_top: true,
+            ..default()
+        },
+    ));
+
+    // Bottom right room wall
+    walls.extend(generate_walls(
+        Vec2::new(1024.0, -1024.0),
+        Vec2::splat(1024.0),
+        TILE_SIZE,
+        DoorSides {
+            skip_top: true,
             skip_left: true,
             ..default()
         },
