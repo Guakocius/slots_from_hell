@@ -5,7 +5,6 @@ use bevy::{
     image::{ImageArrayLayout, ImageLoaderSettings},
     prelude::*,
     sprite_render::{TileData, TilemapChunk, TilemapChunkTileData},
-    ui_render::NodeType::Rect,
 };
 
 use super::screens::game_menu::{GameState, InGame};
@@ -95,41 +94,78 @@ pub struct DoorSides {
     pub bottom: bool,
     pub left: bool,
     pub right: bool,
+
+    pub skip_left: bool,
+    pub skip_right: bool,
+    pub skip_top: bool,
+    pub skip_bottom: bool,
 }
 
 fn generate_walls(center: Vec2, size: Vec2, tile_size: f32, doors: DoorSides) -> Vec<Wall> {
     let half = size / 2.0;
+    let inset = half - Vec2::splat(tile_size / 2.0);
     let mut walls = Vec::new();
 
-    for (has_door, y) in [
-        (doors.bottom, center.y - half.y),
-        (doors.top, center.y + half.y),
-    ] {
+    for (has_door, y) in [(doors.bottom, -inset.y), (doors.top, inset.y)] {
         if has_door {
             let seg = (size.x - tile_size) / 2.0;
             let off = (tile_size + seg) / 2.0;
-            walls.push(Wall::new(tile_size, seg, Vec3::new(center.x - off, y, 0.0)));
-            walls.push(Wall::new(tile_size, seg, Vec3::new(center.x + off, y, 0.0)));
+            // Left segment
+            walls.push(Wall::new(
+                seg,
+                tile_size,
+                Vec3::new(center.x - off, center.y + y, 0.0),
+            ));
+            // Right segment
+            walls.push(Wall::new(
+                seg,
+                tile_size,
+                Vec3::new(center.x + off, center.y + y, 0.0),
+            ));
         } else {
-            walls.push(Wall::new(tile_size, size.y, Vec3::new(center.x, y, 0.0)));
+            // Full wall
+            walls.push(Wall::new(
+                size.x,
+                tile_size,
+                Vec3::new(center.x, center.y + y, 0.0),
+            ));
         }
     }
 
-    for (has_door, x) in [
-        (doors.left, center.x - half.x),
-        (doors.right, center.x + half.x),
+    for (skip, has_door, x) in [
+        (doors.skip_left, doors.left, -inset.x),
+        (doors.skip_right, doors.right, inset.x),
     ] {
+        if skip {
+            continue;
+        }
         if has_door {
             let seg = (size.y - tile_size) / 2.0;
             let off = (tile_size + seg) / 2.0;
-            walls.push(Wall::new(tile_size, seg, Vec3::new(x, center.y - off, 0.0)));
-            walls.push(Wall::new(tile_size, seg, Vec3::new(x, center.y + off, 0.0)));
+            // Bottom segment
+            walls.push(Wall::new(
+                tile_size,
+                seg,
+                Vec3::new(center.x + x, center.y - off, 0.0),
+            ));
+            // Top segment
+            walls.push(Wall::new(
+                tile_size,
+                seg,
+                Vec3::new(center.x + x, center.y + off, 0.0),
+            ));
         } else {
-            walls.push(Wall::new(tile_size, size.y, Vec3::new(x, center.y, 0.0)));
+            // Full wall
+            walls.push(Wall::new(
+                tile_size,
+                size.y,
+                Vec3::new(center.x + x, center.y, 0.0),
+            ));
         }
     }
     walls
 }
+
 fn setup(
     mut cmds: Commands,
     assets: Res<AssetServer>,
@@ -141,8 +177,9 @@ fn setup(
 
     const TILE_SIZE: f32 = 64.0;
 
-    // Main room walls
     let mut walls = Vec::new();
+
+    // Main room walls
     walls.extend(generate_walls(
         Vec2::ZERO,
         Vec2::splat(1024.0),
@@ -152,6 +189,7 @@ fn setup(
             bottom: true,
             left: true,
             right: true,
+            ..default()
         },
     ));
 
@@ -161,7 +199,7 @@ fn setup(
         Vec2::splat(1024.0),
         TILE_SIZE,
         DoorSides {
-            left: true,
+            skip_left: true,
             ..default()
         },
     ));
@@ -242,10 +280,10 @@ fn setup(
 
     // Doors
     [
-        Door::new(Vec3::new(512.0, 0.0, 0.0)),
-        Door::new(Vec3::new(0.0, -512.0, 0.0)),
-        Door::new(Vec3::new(-512.0, 0.0, 0.0)),
-        Door::new(Vec3::new(0.0, 512.0, 0.0)),
+        Door::new(Vec3::new(480.0, 0.0, 0.0)),
+        Door::new(Vec3::new(0.0, -480.0, 0.0)),
+        Door::new(Vec3::new(-480.0, 0.0, 0.0)),
+        Door::new(Vec3::new(0.0, 480.0, 0.0)),
     ]
     .iter()
     .for_each(|d| {
