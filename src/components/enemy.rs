@@ -1,7 +1,7 @@
 //! This module defines core structures and setup behaviors for game entities.
 
-use crate::{GameState, menu::MenuState};
-use bevy::{color::palettes::css::DARK_MAGENTA, prelude::*};
+use crate::{GameState, Wall, check_collision, menu::MenuState};
+use bevy::{color::palettes::css::DARK_MAGENTA, prelude::*, window::PrimaryWindow};
 use rand::{prelude::*, random};
 
 /// Component representing an enemy `Enemy`.
@@ -117,7 +117,7 @@ pub fn add_enemies(
         cmds.spawn((
             Enemy::new(e.name.clone(), e.speed.clone(), e.pos),
             e.name.clone(),
-            Mesh2d(meshes.add(Circle::new(10.0))),
+            Mesh2d(meshes.add(Rectangle::new(64.0, 128.0))),
             MeshMaterial2d(materials.add(Color::from(DARK_MAGENTA))),
             Transform::from_translation(e.pos),
         ));
@@ -127,6 +127,7 @@ pub fn add_enemies(
 
 pub fn enemy_movement(
     mut enemies_query: Query<&mut Transform, With<Enemy>>,
+    wall_query: Query<(&Transform, &Wall), Without<Enemy>>,
     speed: Res<EnemySpeed>,
     time: Res<Time<Fixed>>,
 ) {
@@ -134,7 +135,19 @@ pub fn enemy_movement(
         let direction = Vec3::new(random::<f32>(), random::<f32>(), 0.0);
 
         let move_delta = direction.normalize_or_zero() * speed.0 * time.delta_secs();
-        enemies.translation += move_delta;
+        let new_pos = enemies.translation + move_delta; //extend(0.0);
+        let enemy_size = Vec2::new(128.0, 64.0);
+
+        let mut collision = false;
+        for (wall_tf, wall) in &wall_query {
+            if check_collision(new_pos, enemy_size, wall_tf, wall) {
+                collision = true;
+                break;
+            }
+        }
+        if !collision {
+            enemies.translation = new_pos;
+        }
     }
 }
 
