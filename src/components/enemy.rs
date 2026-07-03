@@ -168,7 +168,7 @@ pub fn enemy_movement(
         let direction = Vec3::new(random::<f32>(), random::<f32>(), 0.0);
 
         let move_delta = direction.normalize_or_zero() * speed.0 * time.delta_secs();
-        let new_pos = enemies.translation + move_delta; //extend(0.0);
+        let new_pos = enemies.translation + move_delta;
         let enemy_size = Vec2::new(128.0, 64.0);
 
         let mut collision = false;
