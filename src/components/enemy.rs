@@ -1,6 +1,6 @@
 //! This module defines core structures and setup behaviors for game enemies.
 
-use crate::{GameState, Wall, check_collision};
+use crate::{GameState, Player, Wall, check_collision};
 use bevy::{color::palettes::css::DARK_MAGENTA, prelude::*};
 use rand::random;
 
@@ -159,17 +159,23 @@ pub fn add_enemies(
 /// app.add_systems(Update, enemy_movement).update();
 /// ```
 pub fn enemy_movement(
-    enemies_query: Query<&mut Transform, With<Enemy>>,
+    mut enemies_query: Query<&mut Transform, With<Enemy>>,
+    player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
     wall_query: Query<(&Transform, &Wall), Without<Enemy>>,
     speed: Res<EnemySpeed>,
     time: Res<Time<Fixed>>,
 ) {
-    for mut enemies in enemies_query {
-        let direction = Vec3::new(random::<f32>(), random::<f32>(), 0.0);
+    let Ok(player_tf) = player_query.single() else {
+        return;
+    };
+    let player_pos = player_tf.translation;
 
-        let move_delta = direction.normalize_or_zero() * speed.0 * time.delta_secs();
-        let new_pos = enemies.translation + move_delta;
-        let enemy_size = Vec2::new(128.0, 64.0);
+    for mut enemy_tf in &mut enemies_query {
+        let direction = (player_pos - enemy_tf.translation).normalize_or_zero();
+
+        let move_delta = direction * speed.0 * time.delta_secs();
+        let new_pos = enemy_tf.translation + move_delta;
+        let enemy_size = Vec2::new(64.0, 128.0);
 
         let mut collision = false;
         for (wall_tf, wall) in &wall_query {
@@ -179,7 +185,7 @@ pub fn enemy_movement(
             }
         }
         if !collision {
-            enemies.translation = new_pos;
+            enemy_tf.translation = new_pos;
         }
     }
 }
