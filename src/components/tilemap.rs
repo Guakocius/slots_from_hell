@@ -78,6 +78,17 @@ pub struct Wall {
     texture: String,
 }
 
+/// Checks if an [`Entity`] ([`Player`] or [`Enemy`]) collides with an existing wall.
+/// Returns true if this Entity collides, false otherwise.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::tilemap::check_collision;
+///
+/// App::new().add_systems(Update, check_collision).update();
+/// ```
 pub fn check_collision(pos: Vec3, size: Vec2, wall_transform: &Transform, wall: &Wall) -> bool {
     let wall_pos = wall_transform.translation;
     let wall_size = Vec2::new(wall.height, wall.width);
@@ -121,6 +132,19 @@ pub struct Door {
 
 impl Door {
     /// Generates a new door with hard-coded `height` and `width` values and a custom position.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use slots_from_hell::components::tilemap::Door;
+    ///
+    /// let door = Door::new(Vec3::new(0.0, 0.0, 0.0));
+    ///
+    /// assert_eq!(door.height, 64.0);
+    /// assert_eq!(door.width, 64.0);
+    /// assert_eq!(door.pos.x, 0.0);
+    /// assert_eq!(door.pos.y, 0.0);
+    /// ```
     pub fn new(pos: Vec3) -> Self {
         Self {
             height: 64.0,
@@ -133,6 +157,19 @@ impl Door {
 impl Wall {
     /// Generates a new wall with a custom height, width, position and a hard-coded texture file
     /// path.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use slots_from_hell::components::tilemap::Wall;
+    ///
+    /// let wall = Wall::new(100.0, 64.0, Vec3::new(0.0, 0.0, 0.0));
+    ///
+    /// assert_eq!(wall.height, 100.0);
+    /// assert_eq!(wall.width, 64.0);
+    /// assert_eq!(wall.pos.x, 0.0);
+    /// assert_eq!(wall.pos.y, 0.0);
+    /// ```
     pub fn new(height: f32, width: f32, pos: Vec3) -> Self {
         Self {
             height,
@@ -152,8 +189,15 @@ impl Wall {
 ///
 /// let door_sides = DoorSides {
 ///     top: true,
-///     ..default()
+///     bottom: false,
+///     left: false,
+///     right: false,
+///     skip_left: false,
+///     skip_right: false,
+///     skip_top: false,
+///     skip_bottom: false,
 /// };
+///
 /// if door_sides.top {
 ///     println!("Leaving a gap on the top wall.");
 /// }
@@ -428,7 +472,7 @@ fn setup(
     // Walls
     walls.iter().for_each(|w| {
         cmds.spawn((
-            Wall::new(w.height.clone(), w.width.clone(), w.pos.clone()),
+            Wall::new(w.height, w.width, w.pos),
             Sprite {
                 image: assets.load(&w.texture),
                 custom_size: Some(Vec2::new(w.height, w.width)),

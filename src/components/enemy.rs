@@ -1,8 +1,8 @@
 //! This module defines core structures and setup behaviors for game enemies.
 
-use crate::{GameState, Wall, check_collision, menu::MenuState};
-use bevy::{color::palettes::css::DARK_MAGENTA, prelude::*, window::PrimaryWindow};
-use rand::{prelude::*, random};
+use crate::{GameState, Wall, check_collision};
+use bevy::{color::palettes::css::DARK_MAGENTA, prelude::*};
+use rand::random;
 
 /// Component representing an enemy `Enemy`.
 ///
@@ -23,6 +23,16 @@ pub struct Enemy {
     pos: Vec3,
 }
 
+/// The `movement speed` of the `enemies`.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::enemy::EnemySpeed;
+///
+/// App::new().insert_resource(EnemySpeed(100.0)).update();
+/// ```
 #[derive(Resource, Debug, Clone)]
 pub struct EnemySpeed(pub f32);
 
@@ -32,6 +42,16 @@ impl Enemy {
     }
 }
 
+/// The [`Plugin`] for enemy systems.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::enemy::EnemyPlugin;
+///
+/// App::new().add_plugins(EnemyPlugin).update();
+/// ```
 #[derive(Debug)]
 pub struct EnemyPlugin;
 
@@ -56,7 +76,8 @@ impl Plugin for EnemyPlugin {
 ///         println!("{}", name.0);
 ///     }
 /// }
-/// let mut app = App::new()
+/// App::new()
+///     .add_plugins(MeshPlugin)
 ///     .add_systems(Startup, add_enemies)
 ///     .add_systems(Update, get_enemy_names)
 ///     .update();
@@ -125,8 +146,20 @@ pub fn add_enemies(
     cmds.insert_resource(EnemySpeed(300.0));
 }
 
+/// The logic for moving the enemies.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::enemy::{EnemySpeed, enemy_movement};
+///
+/// let mut app = App::new();
+/// app.insert_resource(EnemySpeed(100.0)).update();
+/// app.add_systems(Update, enemy_movement).update();
+/// ```
 pub fn enemy_movement(
-    mut enemies_query: Query<&mut Transform, With<Enemy>>,
+    enemies_query: Query<&mut Transform, With<Enemy>>,
     wall_query: Query<(&Transform, &Wall), Without<Enemy>>,
     speed: Res<EnemySpeed>,
     time: Res<Time<Fixed>>,
