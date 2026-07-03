@@ -1,5 +1,5 @@
 //! A module for creating the world's environments and embedding its graphics inside a
-//! Tilemap
+//! Tilemap.
 
 use bevy::{
     image::{ImageArrayLayout, ImageLoaderSettings},
@@ -10,7 +10,7 @@ use bevy::{
 use super::screens::game_menu::{GameState, InGame};
 
 /// A plugin which adds the scene's setup and the tilemap update to the `App's`
-/// behavior
+/// behavior.
 ///
 /// # Examples
 ///
@@ -52,11 +52,29 @@ impl Plugin for TilemapPlugin {
 #[derive(Component, Debug)]
 pub struct WorldMap;
 
+/// [`Component`] struct for the rooms' walls.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::tilemap::Wall;
+///
+/// let wall = Wall::new(100.0, 64.0, Vec3::new(0.0, 0.0, 0.0));
+///
+/// assert_eq!(wall.height, 100.0);
+/// assert_eq!(wall.width, 64.0);
+/// assert_eq!(wall.pos.x, 0.0);
+/// assert_eq!(wall.pos.y, 0.0);
+/// ```
 #[derive(Component, Debug)]
 pub struct Wall {
-    height: f32,
-    width: f32,
-    pos: Vec3,
+    /// The wall's height.
+    pub height: f32,
+    /// The wall's width.
+    pub width: f32,
+    /// The wall's position on the map represented as a three-dimensional Vector.
+    pub pos: Vec3,
     texture: String,
 }
 
@@ -76,15 +94,34 @@ pub fn check_collision(pos: Vec3, size: Vec2, wall_transform: &Transform, wall: 
         && pos_max.y > wall_min.y
 }
 
+/// A [`Component`] struct for the Door elements.
+///
+/// # Examples
+///
+/// ```
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::tilemap::Door;
+///
+/// let door = Door::new(Vec3::new(0.0, 0.0, 0.0));
+///
+/// assert_eq!(door.height, 64.0);
+/// assert_eq!(door.width, 64.0);
+/// assert_eq!(door.pos.x, 0.0);
+/// assert_eq!(door.pos.y, 0.0);
+/// ```
 #[derive(Component, Debug)]
 pub struct Door {
-    height: f32,
-    width: f32,
-    pos: Vec3,
+    /// The door's height.
+    pub height: f32,
+    /// The door's width.
+    pub width: f32,
+    /// The door's position on the map represented as a three-dimensional Vector.
+    pub pos: Vec3,
 }
 
 impl Door {
-    fn new(pos: Vec3) -> Self {
+    /// Generates a new door with hard-coded `height` and `width` values and a custom position.
+    pub fn new(pos: Vec3) -> Self {
         Self {
             height: 64.0,
             width: 64.0,
@@ -94,7 +131,9 @@ impl Door {
 }
 
 impl Wall {
-    fn new(height: f32, width: f32, pos: Vec3) -> Self {
+    /// Generates a new wall with a custom height, width, position and a hard-coded texture file
+    /// path.
+    pub fn new(height: f32, width: f32, pos: Vec3) -> Self {
         Self {
             height,
             width,
@@ -104,16 +143,39 @@ impl Wall {
     }
 }
 
+/// Struct to check which walls should have doors.
+///
+/// # Examples
+///
+/// ```
+/// use slots_from_hell::components::tilemap::DoorSides;
+///
+/// let door_sides = DoorSides {
+///     top: true,
+///     ..default()
+/// };
+/// if door_sides.top {
+///     println!("Leaving a gap on the top wall.");
+/// }
+/// ```
 #[derive(Clone, Debug, Default)]
 pub struct DoorSides {
+    /// The top wall should have a door.
     pub top: bool,
+    /// The bottom wall should have a door.
     pub bottom: bool,
+    /// The left hand side wall should have a door.
     pub left: bool,
+    /// The right hand side wall should have a door.
     pub right: bool,
 
+    /// Skip the left hand side wall.
     pub skip_left: bool,
+    /// Skip the right hand side wall.
     pub skip_right: bool,
+    /// Skip the top wall.
     pub skip_top: bool,
+    /// Skip the bottom wall.
     pub skip_bottom: bool,
 }
 
