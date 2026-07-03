@@ -28,12 +28,13 @@ struct CameraDecayRate(f32);
 /// # Examples
 ///
 /// ```
-/// use slots_from_hell::components::player::Player;
+/// use bevy::prelude::*;
+/// use slots_from_hell::components::player::{Player, PlayerSpeed};
 ///
-/// let player = Player::new("John Doe".into(), 100.0);
+/// let player = Player::new("John Doe".into(), PlayerSpeed(100.0), Vec3::new(0.0, 0.0, 0.0));
 ///
 /// assert_eq!(player.name, "John Doe".to_string());
-/// assert_eq!(player.speed, 100.0);
+/// assert_eq!(player.speed.0, 100.0);
 /// ```
 #[derive(Component, Debug, Clone)]
 pub struct Player {
@@ -51,14 +52,15 @@ impl Player {
     /// # Examples
     ///
     /// ```
-    /// use slots_from_hell::components::player::Player;
+    /// use bevy::prelude::*;
+    /// use slots_from_hell::components::player::{Player, PlayerSpeed};
     ///
     /// let name = String::from("Player");
     /// let speed = 100.0;
-    /// let player = Player::new(name, speed);
+    /// let player = Player::new(name, PlayerSpeed(speed), Vec3::new(0.0, 0.0, 0.0));
     ///
     /// assert_eq!(player.name, String::from("Player"));
-    /// assert_eq!(player.speed, 100.0);
+    /// assert_eq!(player.speed.0, 100.0);
     /// ```
     pub fn new(name: String, speed: PlayerSpeed, pos: Vec3) -> Self {
         Self { name, speed, pos }
