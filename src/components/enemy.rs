@@ -21,6 +21,7 @@ pub struct Enemy {
     name: Name,
     speed: EnemySpeed,
     pos: Vec3,
+    sprite_path: String,
 }
 
 /// The `movement speed` of the `enemies`.
@@ -37,8 +38,13 @@ pub struct Enemy {
 pub struct EnemySpeed(pub f32);
 
 impl Enemy {
-    fn new(name: Name, speed: EnemySpeed, pos: Vec3) -> Self {
-        Self { name, speed, pos }
+    fn new(name: Name, speed: EnemySpeed, pos: Vec3, sprite_path: String) -> Self {
+        Self {
+            name,
+            speed,
+            pos,
+            sprite_path,
+        }
     }
 }
 
@@ -106,40 +112,48 @@ pub struct Name(
 ///
 /// assert_eq!(count, 4);
 /// ```
-pub fn add_enemies(
-    mut cmds: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
     [
         Enemy::new(
             Name("Asmodeus".to_string()),
             EnemySpeed(300.0),
             Vec3::new(1024.0, -1024.0, 0.0),
+            String::from("img/asmodeus.png"),
         ),
         Enemy::new(
             Name("Beelzebub".to_string()),
             EnemySpeed(300.0),
             Vec3::new(-1024.0, -1024.0, 0.0),
+            String::from("img/asmodeus.png"),
         ),
         Enemy::new(
             Name("Poltergeist".to_string()),
             EnemySpeed(300.0),
             Vec3::new(1024.0, 1024.0, 0.0),
+            String::from("img/asmodeus.png"),
         ),
         Enemy::new(
             Name("Lucifer".to_string()),
             EnemySpeed(300.0),
             Vec3::new(-1024.0, 0.0, 0.0),
+            String::from("img/asmodeus.png"),
         ),
     ]
     .iter()
     .for_each(|e| {
         cmds.spawn((
-            Enemy::new(e.name.clone(), e.speed.clone(), e.pos),
+            Enemy::new(
+                e.name.clone(),
+                e.speed.clone(),
+                e.pos,
+                e.sprite_path.to_string(),
+            ),
             e.name.clone(),
-            Mesh2d(meshes.add(Rectangle::new(64.0, 128.0))),
-            MeshMaterial2d(materials.add(Color::from(DARK_MAGENTA))),
+            Sprite {
+                image: assets.load(&e.sprite_path),
+                custom_size: Some(Vec2::new(512.0, 512.0)),
+                ..default()
+            },
             Transform::from_translation(e.pos),
         ));
     });
