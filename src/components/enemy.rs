@@ -124,19 +124,19 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
             Name("Beelzebub".to_string()),
             EnemySpeed(300.0),
             Vec3::new(-1024.0, -1024.0, 0.0),
-            String::from("img/asmodeus.png"),
+            String::from("img/beelzebub.png"),
         ),
         Enemy::new(
             Name("Poltergeist".to_string()),
             EnemySpeed(300.0),
             Vec3::new(1024.0, 1024.0, 0.0),
-            String::from("img/asmodeus.png"),
+            String::from("img/poltergeist.png"),
         ),
         Enemy::new(
             Name("Lucifer".to_string()),
             EnemySpeed(300.0),
             Vec3::new(-1024.0, 0.0, 0.0),
-            String::from("img/asmodeus.png"),
+            String::from("img/lucifer.png"),
         ),
     ]
     .iter()
