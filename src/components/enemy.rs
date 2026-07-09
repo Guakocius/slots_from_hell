@@ -151,7 +151,7 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
             e.name.clone(),
             Sprite {
                 image: assets.load(&e.sprite_path),
-                custom_size: Some(Vec2::new(512.0, 512.0)),
+                custom_size: Some(Vec2::new(256.0, 256.0)),
                 ..default()
             },
             Transform::from_translation(e.pos),
