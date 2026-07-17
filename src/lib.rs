@@ -30,12 +30,13 @@ pub mod components {
     pub mod screens {
         pub mod fps_overlay;
         pub mod game_menu;
+        pub mod security_camera_overlay;
     }
 }
 
 pub use components::{
     enemy::*,
     player::*,
-    screens::{fps_overlay::*, game_menu::*},
+    screens::{fps_overlay::*, game_menu::*, security_camera_overlay::*},
     tilemap::*,
 };
