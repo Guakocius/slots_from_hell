@@ -78,6 +78,19 @@ pub struct Wall {
     texture: String,
 }
 
+#[derive(Component, Debug)]
+pub struct Room {
+    name: String,
+    pos: Vec3,
+    texture: String,
+}
+
+impl Room {
+    fn new(name: String, pos: Vec3, texture: String) -> Self {
+        Self { name, pos, texture }
+    }
+}
+
 /// Checks if an [`Entity`] ([`Player`] or [`Enemy`]) collides with an existing wall.
 /// Returns true if this Entity collides, false otherwise.
 ///
@@ -413,43 +426,50 @@ fn setup(
         .map(|i| Some(TileData::from_tileset_index(i as u16)))
         .collect();
 
-    // Rooms
     [
-        (
+        Room::new(
+            "Surveillance Room".into(),
             Vec3::new(0.0, 0.0, -200.0),
-            "textures/map_texture_floor.png",
+            "textures/map_texture_floor.png".into(),
         ),
-        (
+        Room::new(
+            "Kitchen".into(),
             Vec3::new(1024.0, 0.0, -200.0),
-            "textures/map_texture_kitchen.png",
+            "textures/map_texture_kitchen.png".into(),
         ),
-        (
+        Room::new(
+            "Pianists Room".into(),
             Vec3::new(-1024.0, 0.0, -200.0),
-            "textures/map_texture_pianists_room.png",
+            "textures/map_texture_pianists_room.png".into(),
         ),
-        (
+        Room::new(
+            "Bedroom".into(),
             Vec3::new(0.0, 1024.0, -200.0),
-            "textures/map_texture_wooden1.png",
+            "textures/map_texture_wooden1.png".into(),
         ),
-        (
+        Room::new(
+            "Living Room".into(),
             Vec3::new(0.0, -1024.0, -200.0),
-            "textures/map_texture_wooden2.png",
+            "textures/map_texture_wooden2.png".into(),
         ),
-        (
+        Room::new(
+            "Home Office".into(),
             Vec3::new(1024.0, 1024.0, -200.0),
-            "textures/map_texture_wooden3.png",
+            "textures/map_texture_wooden3.png".into(),
         ),
-        (
+        Room::new(
+            "Dining Room".into(),
             Vec3::new(1024.0, -1024.0, -200.0),
-            "textures/map_texture_bricks.png",
+            "textures/map_texture_bricks.png".into(),
         ),
-        (
+        Room::new(
+            "Bathroom".into(),
             Vec3::new(-1024.0, -1024.0, -200.0),
-            "textures/map_texture_oldbricks.png",
+            "textures/map_texture_oldbricks.png".into(),
         ),
     ]
     .iter()
-    .for_each(|(v, p)| {
+    .for_each(|r| {
         cmds.spawn((
             WorldMap,
             TilemapChunk {
@@ -460,12 +480,13 @@ fn setup(
                     .with_settings(|settings: &mut ImageLoaderSettings| {
                         settings.array_layout = Some(ImageArrayLayout::RowCount { rows: 4 })
                     })
-                    .load(*p),
+                    .load(r.texture.clone()),
 
                 ..default()
             },
             TilemapChunkTileData(tile_data.clone()),
-            Transform::from_translation(*v),
+            Transform::from_translation(r.pos),
+            Room::new(r.name.clone(), r.pos, r.texture.clone()),
         ));
     });
 

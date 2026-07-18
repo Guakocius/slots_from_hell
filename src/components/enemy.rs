@@ -22,6 +22,7 @@ pub struct Enemy {
     pos: Vec3,
     sprite_path: String,
     can_move_through_walls: bool,
+    state: EnemyState,
 }
 
 /// The `movement speed` of the `enemies`.
@@ -37,6 +38,12 @@ pub struct Enemy {
 #[derive(Resource, Debug, Clone)]
 pub struct EnemySpeed(pub f32);
 
+#[derive(Debug, Clone, Copy)]
+enum EnemyState {
+    Patrolling,
+    Chasing,
+}
+
 impl Enemy {
     fn new(
         name: Name,
@@ -44,6 +51,7 @@ impl Enemy {
         pos: Vec3,
         sprite_path: String,
         can_move_through_walls: bool,
+        state: EnemyState,
     ) -> Self {
         Self {
             name,
@@ -51,6 +59,7 @@ impl Enemy {
             pos,
             sprite_path,
             can_move_through_walls,
+            state,
         }
     }
 }
@@ -107,7 +116,7 @@ pub struct Name(
 ///
 /// ```
 /// use bevy::prelude::*;
-/// use slots_from_hell::components::enemy::{ add_enemies, Enemy};
+/// use slots_from_hell::components::enemy::{add_enemies, Enemy};
 /// let mut app = App::new();
 ///
 /// app.add_systems(Startup, add_enemies).update();
@@ -127,6 +136,7 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
             Vec3::new(1024.0, -1024.0, 0.0),
             String::from("img/asmodeus.png"),
             false,
+            EnemyState::Patrolling,
         ),
         Enemy::new(
             Name("Beelzebub".to_string()),
@@ -134,6 +144,7 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
             Vec3::new(-1024.0, -1024.0, 0.0),
             String::from("img/beelzebub.png"),
             false,
+            EnemyState::Patrolling,
         ),
         Enemy::new(
             Name("Poltergeist".to_string()),
@@ -141,6 +152,7 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
             Vec3::new(1024.0, 1024.0, 0.0),
             String::from("img/poltergeist.png"),
             true,
+            EnemyState::Patrolling,
         ),
         Enemy::new(
             Name("Lucifer".to_string()),
@@ -148,6 +160,7 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
             Vec3::new(-1024.0, 0.0, 0.0),
             String::from("img/lucifer.png"),
             false,
+            EnemyState::Patrolling,
         ),
     ]
     .iter()
@@ -159,6 +172,7 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
                 e.pos,
                 e.sprite_path.to_string(),
                 e.can_move_through_walls,
+                e.state,
             ),
             e.name.clone(),
             Sprite {
@@ -171,6 +185,9 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
     });
     cmds.insert_resource(EnemySpeed(300.0));
 }
+
+/*#[derive(Resource, Debug)]
+struct EnemyMovementTimer(Timer);*/
 
 /// The logic for moving the enemies.
 ///
@@ -197,22 +214,32 @@ pub fn enemy_movement(
     let player_pos = player_tf.translation;
 
     for (mut enemy_tf, enemy) in &mut enemies_query {
-        let direction = (player_pos - enemy_tf.translation).normalize_or_zero();
+        match enemy.state {
+            EnemyState::Patrolling => {
+                let mut timer = Timer::from_seconds(10.0, TimerMode::Repeating);
 
-        let move_delta = direction * speed.0 * time.delta_secs();
-        let new_pos = enemy_tf.translation + move_delta;
-        let enemy_size = Vec2::new(64.0, 128.0);
-
-        let mut collision = false;
-        for (wall_tf, wall) in &wall_query {
-            if check_collision(new_pos, enemy_size, wall_tf, wall) && !enemy.can_move_through_walls
-            {
-                collision = true;
-                break;
+                if timer.just_finished() {}
             }
-        }
-        if !collision {
-            enemy_tf.translation = new_pos;
+            EnemyState::Chasing => {
+                let direction = (player_pos - enemy_tf.translation).normalize_or_zero();
+
+                let move_delta = direction * speed.0 * time.delta_secs();
+                let new_pos = enemy_tf.translation + move_delta;
+                let enemy_size = Vec2::new(64.0, 128.0);
+
+                let mut collision = false;
+                for (wall_tf, wall) in &wall_query {
+                    if check_collision(new_pos, enemy_size, wall_tf, wall)
+                        && !enemy.can_move_through_walls
+                    {
+                        collision = true;
+                        break;
+                    }
+                }
+                if !collision {
+                    enemy_tf.translation = new_pos;
+                }
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ use crate::Player;
 pub struct SecurityCameraPlugin;
 
 #[derive(Resource)]
-pub struct CamSwitch;
+pub struct CameraSwitch;
 
 impl Plugin for SecurityCameraPlugin {
     fn build(&self, app: &mut App) {
@@ -41,7 +41,7 @@ fn swap_cameras(
     input: Res<ButtonInput<KeyCode>>,
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
     player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
-    cam_res: Option<Res<CamSwitch>>,
+    camera_res: Option<Res<CameraSwitch>>,
 ) {
     let Ok(mut camera_tf) = camera_query.single_mut() else {
         return;
@@ -49,29 +49,29 @@ fn swap_cameras(
 
     if input.just_pressed(KeyCode::Digit1) {
         camera_tf.translation = Vec3::new(1024.0, -1024.0, 0.0);
-        if cam_res.is_none() {
-            cmds.insert_resource(CamSwitch);
+        if camera_res.is_none() {
+            cmds.insert_resource(CameraSwitch);
         }
     }
 
     if input.just_pressed(KeyCode::Digit2) {
         camera_tf.translation = Vec3::new(-1024.0, -1024.0, 0.0);
-        if cam_res.is_none() {
-            cmds.insert_resource(CamSwitch);
+        if camera_res.is_none() {
+            cmds.insert_resource(CameraSwitch);
         }
     }
 
     if input.just_pressed(KeyCode::Digit3) {
         camera_tf.translation = Vec3::new(1024.0, 1024.0, 0.0);
-        if cam_res.is_none() {
-            cmds.insert_resource(CamSwitch);
+        if camera_res.is_none() {
+            cmds.insert_resource(CameraSwitch);
         }
     }
 
     if input.just_pressed(KeyCode::Digit4) {
         camera_tf.translation = Vec3::new(-1024.0, 0.0, 0.0);
-        if cam_res.is_none() {
-            cmds.insert_resource(CamSwitch);
+        if camera_res.is_none() {
+            cmds.insert_resource(CameraSwitch);
         }
     }
 
@@ -80,8 +80,8 @@ fn swap_cameras(
             return;
         };
         camera_tf.translation = player_tf.translation;
-        if cam_res.is_some() {
-            cmds.remove_resource::<CamSwitch>();
+        if camera_res.is_some() {
+            cmds.remove_resource::<CameraSwitch>();
         }
     }
 }
