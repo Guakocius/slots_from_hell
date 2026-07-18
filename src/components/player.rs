@@ -1,7 +1,7 @@
 //! A module for specifying the player's core behavior.
 use bevy::{color::palettes::css::NAVY, prelude::*};
 
-use crate::{GameState, Name, Wall, check_collision, menu::MenuState};
+use crate::{CamSwitch, GameState, Name, Wall, check_collision, menu::MenuState};
 
 /// The speed of the player defined as a resource for re-using.
 ///
@@ -82,6 +82,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
+
         app.insert_resource(PlayerSpeed(300.0))
             .add_systems(OnEnter(GameState::Playing), setup)
             .add_systems(FixedUpdate, (move_player, update_camera));
@@ -121,6 +122,7 @@ fn setup(
 fn update_camera(
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
     player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
+    cam_switch: Option<Res<CamSwitch>>,
 ) {
     let Ok(mut camera_tf) = camera_query.single_mut() else {
         return;
@@ -129,6 +131,9 @@ fn update_camera(
         return;
     };
 
+    if cam_switch.is_some() {
+        return;
+    }
     let target = player_tf.translation;
     camera_tf.translation = camera_tf.translation.lerp(target, 0.1);
 
@@ -153,12 +158,17 @@ pub fn move_player(
     speed: Res<PlayerSpeed>,
     time: Res<Time<Fixed>>,
     kb_input: Res<ButtonInput<KeyCode>>,
+    cam_switch: Option<Res<CamSwitch>>,
 ) {
     let Ok(mut transform) = player_query.single_mut() else {
         return;
     };
 
     let mut direction = Vec2::ZERO;
+
+    if cam_switch.is_some() {
+        return;
+    }
 
     if kb_input.pressed(KeyCode::KeyW) {
         direction.y += 1.0;
