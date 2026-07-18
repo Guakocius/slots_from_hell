@@ -4,6 +4,9 @@ use crate::Player;
 
 pub struct SecurityCameraPlugin;
 
+#[derive(Resource)]
+pub struct CamSwitch;
+
 impl Plugin for SecurityCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
@@ -33,18 +36,12 @@ fn setup(mut cmds: Commands) {
     ));
 }
 
-#[derive(Resource, Deref, DerefMut)]
-struct AltUpdate(pub Schedule);
-
-fn swap_schedule(mut schedules: ResMut<Schedules>, mut alt: ResMut<AltUpdate>) {
-    std::mem::swap(schedules.get_mut(Update).unwrap(), &mut *alt);
-}
-
 fn swap_cameras(
+    mut cmds: Commands,
     input: Res<ButtonInput<KeyCode>>,
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
     player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
-    app_query: &mut App,
+    cam_res: Option<Res<CamSwitch>>,
 ) {
     let Ok(mut camera_tf) = camera_query.single_mut() else {
         return;
@@ -52,22 +49,30 @@ fn swap_cameras(
 
     if input.just_pressed(KeyCode::Digit1) {
         camera_tf.translation = Vec3::new(1024.0, -1024.0, 0.0);
-        app.update();
+        if cam_res.is_none() {
+            cmds.insert_resource(CamSwitch);
+        }
     }
 
     if input.just_pressed(KeyCode::Digit2) {
         camera_tf.translation = Vec3::new(-1024.0, -1024.0, 0.0);
-        app.update();
+        if cam_res.is_none() {
+            cmds.insert_resource(CamSwitch);
+        }
     }
 
     if input.just_pressed(KeyCode::Digit3) {
         camera_tf.translation = Vec3::new(1024.0, 1024.0, 0.0);
-        app.update();
+        if cam_res.is_none() {
+            cmds.insert_resource(CamSwitch);
+        }
     }
 
     if input.just_pressed(KeyCode::Digit4) {
         camera_tf.translation = Vec3::new(-1024.0, 0.0, 0.0);
-        app.update();
+        if cam_res.is_none() {
+            cmds.insert_resource(CamSwitch);
+        }
     }
 
     if input.just_pressed(KeyCode::Digit5) {
@@ -75,6 +80,8 @@ fn swap_cameras(
             return;
         };
         camera_tf.translation = player_tf.translation;
-        app.update();
+        if cam_res.is_some() {
+            cmds.remove_resource::<CamSwitch>();
+        }
     }
 }
