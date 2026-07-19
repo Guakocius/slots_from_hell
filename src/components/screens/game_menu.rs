@@ -1,7 +1,7 @@
 //! This module generates the graphical user interfaces of both
 //! the main menu as well as the pause menu.
 
-use crate::{ClockPlugin, FpsPlugin, SecurityCameraPlugin};
+use crate::{ClockPlugin, FpsPlugin, SecurityCameraPlugin, spawn_text};
 use bevy::prelude::*;
 
 const TEXT_COLOR: Color = Color::srgb(0.0, 0.28, 0.73);

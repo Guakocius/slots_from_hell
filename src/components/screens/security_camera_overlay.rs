@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::Player;
+use crate::{Player, spawn_text};
 
 pub struct SecurityCameraPlugin;
 
@@ -15,25 +15,20 @@ impl Plugin for SecurityCameraPlugin {
 }
 
 fn setup(mut cmds: Commands) {
-    cmds.spawn((
-        Text::new(concat!(
-            "Press 1 to toggle cam 01.\n",
-            "Press 2 to toggle cam 02.\n",
-            "Press 3 to toggle cam 03\n",
-            "Press 4 to toggle cam 04.\n",
-            "Press 5 to toggle cam off."
-        )),
-        TextFont {
-            font_size: FontSize::Px(15.0),
-            ..default()
-        },
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(12),
-            left: px(12),
-            ..default()
-        },
-    ));
+    spawn_text!(
+        cmds,
+        (
+            concat!(
+                "Press 1 to toggle cam 01.\n",
+                "Press 2 to toggle cam 02.\n",
+                "Press 3 to toggle cam 03\n",
+                "Press 4 to toggle cam 04.\n",
+                "Press 5 to toggle cam off."
+            ),
+            (bottom, 12),
+            (left, 12)
+        )
+    );
 }
 
 fn swap_cameras(

@@ -1,40 +1,73 @@
 use bevy::prelude::*;
 
+use crate::{insert_resources, spawn_text};
+
 pub struct ClockPlugin;
 
-macro_rules! spawn_text {
-    ($cmds:expr, $(($t:expr,$pos1:ident,$pos2:ident,$x:expr,$y:expr)),* $(,)?) => {
-        $(
-            $cmds.spawn((
-                Text::new($t),
-                TextFont {
-                    font_size: FontSize::Px(15.0),
-                    ..default()
-                },
-                Node {
-                    position_type: PositionType::Absolute,
-                    $pos1: px($x),
-                    $pos2: px($y),
-                    ..default()
-                },
-            ));
-        )*
-    };
-}
+#[derive(Resource, Deref, DerefMut)]
+struct ClockTimer(Timer);
 
 #[derive(Resource)]
-struct ClockTimer(Timer);
+struct DayRes(u8);
+
+#[derive(Resource)]
+struct DayTimeRes(u8);
+
+#[derive(Component)]
+struct Day;
+
+#[derive(Component)]
+struct DayTime;
 
 impl Plugin for ClockPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(ClockTimer(Timer::from_seconds(60.0, TimerMode::Repeating)))
-            .add_systems(Startup, setup);
+        app.add_systems(Startup, setup)
+            .add_systems(Update, advance_time);
     }
 }
 
 fn setup(mut cmds: Commands) {
-    let mut day = "Day 1";
-    let mut time = "0 am";
+    let day = "Day 1";
+    let time = "0 am";
 
-    spawn_text!(cmds, (day, top, right, 12, 12), (time, top, right, 40, 12));
+    spawn_text!(
+        cmds,
+        (day, (top, 12), (right, 12), Day),
+        (time, (top, 40), (right, 12), DayTime)
+    );
+
+    insert_resources!(
+        cmds,
+        DayRes(1),
+        DayTimeRes(0),
+        ClockTimer(Timer::from_seconds(60.0, TimerMode::Repeating))
+    );
+}
+
+fn advance_time(
+    time: Res<Time>,
+    mut _cmds: Commands,
+    mut timer: ResMut<ClockTimer>,
+    mut day: ResMut<DayRes>,
+    mut day_time: ResMut<DayTimeRes>,
+    mut day_text: Query<&mut Text, (With<Day>, Without<DayTime>)>,
+    mut day_time_text: Query<&mut Text, (With<DayTime>, Without<Day>)>,
+) {
+    if timer.tick(time.delta()).just_finished() {
+        day_time.0 += 1;
+        let Ok(mut day_text) = day_text.single_mut() else {
+            return;
+        };
+        let Ok(mut day_time_text) = day_time_text.single_mut() else {
+            return;
+        };
+
+        day_time_text.0 = format!("{} am", day_time.0);
+        if day_time.0 == 6 {
+            day.0 += 1;
+            day_text.0 = format!("Day {}", day.0);
+            day_time.0 = 0;
+            day_time_text.0 = format!("{} am", day_time.0);
+        }
+    }
 }

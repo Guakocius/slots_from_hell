@@ -20,6 +20,10 @@
 
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+pub mod utils {
+    pub mod macros;
+}
+
 /// All game components packed into a public module.
 pub mod components {
     pub mod enemy;
@@ -41,3 +45,4 @@ pub use components::{
     screens::{clock_overlay::*, fps_overlay::*, game_menu::*, security_camera_overlay::*},
     tilemap::*,
 };
+pub use utils::macros;
