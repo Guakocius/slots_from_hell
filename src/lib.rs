@@ -28,6 +28,7 @@ pub mod components {
 
     /// Public module for all screens and menus.
     pub mod screens {
+        pub mod clock_overlay;
         pub mod fps_overlay;
         pub mod game_menu;
         pub mod security_camera_overlay;
@@ -37,6 +38,6 @@ pub mod components {
 pub use components::{
     enemy::*,
     player::*,
-    screens::{fps_overlay::*, game_menu::*, security_camera_overlay::*},
+    screens::{clock_overlay::*, fps_overlay::*, game_menu::*, security_camera_overlay::*},
     tilemap::*,
 };
