@@ -7,7 +7,7 @@ use bevy::{
     sprite_render::{TileData, TilemapChunk, TilemapChunkTileData},
 };
 
-use super::screens::game_menu::{GameState, InGame};
+use crate::{GameState, InGame, generate_rooms};
 
 /// A plugin which adds the scene's setup and the tilemap update to the `App's`
 /// behavior.
@@ -426,48 +426,48 @@ fn setup(
         .map(|i| Some(TileData::from_tileset_index(i as u16)))
         .collect();
 
-    [
-        Room::new(
-            "Surveillance Room".into(),
+    generate_rooms!(
+        (
+            "Surveillance Room",
             Vec3::new(0.0, 0.0, -200.0),
-            "textures/map_texture_floor.png".into(),
+            "textures/map_texture_floor.png"
         ),
-        Room::new(
-            "Kitchen".into(),
+        (
+            "Kitchen",
             Vec3::new(1024.0, 0.0, -200.0),
-            "textures/map_texture_kitchen.png".into(),
+            "textures/map_texture_kitchen.png"
         ),
-        Room::new(
-            "Pianists Room".into(),
+        (
+            "Pianists Room",
             Vec3::new(-1024.0, 0.0, -200.0),
-            "textures/map_texture_pianists_room.png".into(),
+            "textures/map_texture_pianists_room.png"
         ),
-        Room::new(
-            "Bedroom".into(),
+        (
+            "Bedroom",
             Vec3::new(0.0, 1024.0, -200.0),
-            "textures/map_texture_wooden1.png".into(),
+            "textures/map_texture_wooden1.png"
         ),
-        Room::new(
-            "Living Room".into(),
+        (
+            "Living Room",
             Vec3::new(0.0, -1024.0, -200.0),
-            "textures/map_texture_wooden2.png".into(),
+            "textures/map_texture_wooden2.png"
         ),
-        Room::new(
-            "Home Office".into(),
+        (
+            "Home Office",
             Vec3::new(1024.0, 1024.0, -200.0),
-            "textures/map_texture_wooden3.png".into(),
+            "textures/map_texture_wooden3.png"
         ),
-        Room::new(
-            "Dining Room".into(),
+        (
+            "Dining Room",
             Vec3::new(1024.0, -1024.0, -200.0),
-            "textures/map_texture_bricks.png".into(),
+            "textures/map_texture_bricks.png"
         ),
-        Room::new(
-            "Bathroom".into(),
+        (
+            "Bathroom",
             Vec3::new(-1024.0, -1024.0, -200.0),
-            "textures/map_texture_oldbricks.png".into(),
-        ),
-    ]
+            "textures/map_texture_oldbricks.png"
+        )
+    )
     .iter()
     .for_each(|r| {
         cmds.spawn((

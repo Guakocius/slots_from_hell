@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::Room;
+
 #[macro_export]
 macro_rules! spawn_text {
     ($cmds:expr,$(($t:expr,($pos1:ident,$x:expr),($pos2:ident,$y:expr)$(,$misc:expr),*)),*) => {
@@ -29,4 +31,16 @@ macro_rules! insert_resources {
             $cmds.insert_resource($res);
         )*
     };
+}
+
+#[macro_export]
+macro_rules! generate_rooms {
+    ($(($name:expr,$coords:expr,$texture:expr)),*) => {
+        vec![
+            $(
+                Room::new($name.into(),$coords,$texture.into())
+            ),*
+        ]
+
+    }
 }

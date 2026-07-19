@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{insert_resources, spawn_text};
+use crate::{GameState, insert_resources, spawn_text};
 
 pub struct ClockPlugin;
 
-#[derive(Resource, Deref, DerefMut)]
+#[derive(Resource, Deref, DerefMut, Clone)]
 struct ClockTimer(Timer);
 
 #[derive(Resource)]
@@ -22,18 +22,15 @@ struct DayTime;
 impl Plugin for ClockPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, advance_time);
+            .add_systems(Update, advance_time.run_if(in_state(GameState::Playing)));
     }
 }
 
 fn setup(mut cmds: Commands) {
-    let day = "Day 1";
-    let time = "0 am";
-
     spawn_text!(
         cmds,
-        (day, (top, 12), (right, 12), Day),
-        (time, (top, 40), (right, 12), DayTime)
+        ("Day 1", (top, 12), (right, 12), Day),
+        ("0 am", (top, 40), (right, 12), DayTime)
     );
 
     insert_resources!(
