@@ -29,6 +29,9 @@ impl Plugin for TilemapPlugin {
     }
 }
 
+const CHUNK_SIZE: UVec2 = UVec2::splat(16);
+const TILE_DISPLAY_SIZE: UVec2 = UVec2::splat(64);
+
 /// A module representing an already existing World map.
 ///
 /// # Examples
@@ -80,10 +83,13 @@ pub struct Wall {
 
 #[derive(Component, Debug)]
 pub struct Room {
-    name: String,
-    pos: Vec3,
+    pub name: String,
+    pub pos: Vec3,
     texture: String,
 }
+
+#[derive(Resource, Debug)]
+pub struct RoomDimensions(pub Vec<Vec2>);
 
 impl Room {
     fn new(name: String, pos: Vec3, texture: String) -> Self {
@@ -420,9 +426,7 @@ fn setup(
         },
     ));
 
-    let chunk_size = UVec2::splat(16);
-    let tile_display_size = UVec2::splat(64);
-    let tile_data: Vec<Option<TileData>> = (0..chunk_size.element_product())
+    let tile_data: Vec<Option<TileData>> = (0..CHUNK_SIZE.element_product())
         .map(|i| Some(TileData::from_tileset_index(i as u16)))
         .collect();
 
@@ -473,8 +477,8 @@ fn setup(
         cmds.spawn((
             WorldMap,
             TilemapChunk {
-                chunk_size,
-                tile_display_size,
+                chunk_size: CHUNK_SIZE,
+                tile_display_size: TILE_DISPLAY_SIZE,
                 tileset: assets
                     .load_builder()
                     .with_settings(|settings: &mut ImageLoaderSettings| {
