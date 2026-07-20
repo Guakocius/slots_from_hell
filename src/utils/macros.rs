@@ -44,3 +44,13 @@ macro_rules! generate_rooms {
 
     }
 }
+
+#[macro_export]
+macro_rules! is_in_room {
+    ($etf:expr,$r:expr) => {
+        $etf.translation.x - 512.0 < $r.pos.x + 512.0
+            && $etf.translation.x + 512.0 > $r.pos.x - 512.0
+            && $etf.translation.y - 512.0 < $r.pos.y + 512.0
+            && $etf.translation.y + 512.0 > $r.pos.y - 512.0
+    };
+}

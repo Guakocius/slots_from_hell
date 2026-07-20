@@ -1,6 +1,6 @@
 //! This module defines core structures and setup behaviors for game enemies.
 
-use crate::{GameState, Player, Room, Wall, check_collision};
+use crate::{GameState, Player, Room, Wall, check_collision, check_collision_room, is_in_room};
 use bevy::prelude::*;
 
 /// Component representing an enemy `Enemy`.
@@ -205,7 +205,7 @@ pub fn enemy_movement(
     mut enemies_query: Query<(&mut Transform, &mut Enemy)>,
     player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
     wall_query: Query<(&Transform, &Wall), Without<Enemy>>,
-    room_query: Query<&Room>,
+    room_query: Query<(&Transform, &Room), (Without<Player>, Without<Wall>, Without<Enemy>)>,
     speed: Res<EnemySpeed>,
     time: Res<Time<Fixed>>,
 ) {
@@ -214,28 +214,25 @@ pub fn enemy_movement(
     };
     let player_pos = player_tf.translation;
 
-    for (mut enemy_tf, enemy) in &mut enemies_query {
+    for (mut enemy_tf, mut enemy) in &mut enemies_query {
         match enemy.state {
             EnemyState::Patrolling => {
                 let mut timer = Timer::from_seconds(10.0, TimerMode::Repeating);
 
-                let rooms = room_query.iter().collect::<Vec<&Room>>();
-
-                for room in rooms {
-                    let mut dims: Vec<Vec2> = vec![vec2(0.0, 0.0); 1024];
-                    let len = dims.len() + 1;
-                    dims.iter_mut().enumerate().for_each(|(i, &mut mut v)| {
-                        if i < len / 2 {
-                            v = vec2(
-                                len as f32 / 2.0 + room.pos[0],
-                                len as f32 / 2.0 + room.pos[1],
-                            );
-                        } else if i > len / 2 {
-                            v = vec2(len as f32 / 2.0 - room.pos.x, len as f32 / 2.0 - room.pos.y);
-                        } else {
-                            v = vec2(room.pos.x, room.pos.y);
-                        }
-                    });
+                for (room_tf, room) in &room_query {
+                    if check_collision_room(
+                        enemy_tf.translation,
+                        Vec2::new(512.0, 512.0),
+                        room_tf,
+                        room,
+                    ) && check_collision_room(
+                        player_tf.translation,
+                        Vec2::new(512.0, 512.0),
+                        room_tf,
+                        room,
+                    ) {
+                        enemy.state = EnemyState::Chasing;
+                    }
                 }
 
                 /*let Ok((wall_tf, wall)) = wall_query.single() else {
