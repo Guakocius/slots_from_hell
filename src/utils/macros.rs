@@ -1,4 +1,4 @@
-//! This module serves for bringing utility-enhancing macros.
+use crate::*;
 
 /// Spawns text using the specified parameters.
 ///
