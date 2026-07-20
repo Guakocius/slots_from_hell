@@ -1,6 +1,6 @@
 //! This module defines core structures and setup behaviors for game enemies.
 
-use crate::{GameState, Player, Room, Wall, check_collision, check_collision_room, is_in_room};
+use crate::{GameState, Player, Room, Wall, check_collision};
 use bevy::prelude::*;
 
 /// Component representing an enemy `Enemy`.
@@ -220,16 +220,14 @@ pub fn enemy_movement(
                 let mut timer = Timer::from_seconds(10.0, TimerMode::Repeating);
 
                 for (room_tf, room) in &room_query {
-                    if check_collision_room(
+                    if check_collision!(
                         enemy_tf.translation,
                         Vec2::new(512.0, 512.0),
-                        room_tf,
-                        room,
-                    ) && check_collision_room(
+                        room_tf.translation
+                    ) && check_collision!(
                         player_tf.translation,
                         Vec2::new(512.0, 512.0),
-                        room_tf,
-                        room,
+                        room_tf.translation
                     ) {
                         enemy.state = EnemyState::Chasing;
                     }
@@ -250,8 +248,12 @@ pub fn enemy_movement(
 
                 let mut collision = false;
                 for (wall_tf, wall) in &wall_query {
-                    if check_collision(new_pos, enemy_size, wall_tf, wall)
-                        && !enemy.can_move_through_walls
+                    if check_collision!(
+                        new_pos,
+                        enemy_size,
+                        wall_tf.translation,
+                        Vec2::new(wall.height, wall.width)
+                    ) && !enemy.can_move_through_walls
                     {
                         collision = true;
                         break;

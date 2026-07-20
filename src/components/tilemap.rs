@@ -97,53 +97,6 @@ impl Room {
     }
 }
 
-/// Checks if an [`Entity`] ([`Player`] or [`Enemy`]) collides with an existing wall.
-/// Returns true if this Entity collides, false otherwise.
-///
-/// # Examples
-///
-/// ```
-/// use bevy::prelude::*;
-/// use slots_from_hell::components::tilemap::check_collision;
-///
-/// App::new().add_systems(Update, check_collision).update();
-/// ```
-pub fn check_collision(pos: Vec3, size: Vec2, wall_transform: &Transform, wall: &Wall) -> bool {
-    let wall_pos = wall_transform.translation;
-    let wall_size = Vec2::new(wall.height, wall.width);
-
-    let pos_min = Vec2::new(pos.x - size.x / 2.0, pos.y - size.y / 2.0);
-    let pos_max = Vec2::new(pos.x + size.x / 2.0, pos.y + size.y / 2.0);
-
-    let wall_min = wall_pos.truncate() - wall_size / 2.0;
-    let wall_max = wall_pos.truncate() + wall_size / 2.0;
-
-    pos_min.x < wall_max.x
-        && pos_max.x > wall_min.x
-        && pos_min.y < wall_max.y
-        && pos_max.y > wall_min.y
-}
-
-pub fn check_collision_room(
-    pos: Vec3,
-    size: Vec2,
-    wall_transform: &Transform,
-    wall: &Room,
-) -> bool {
-    let wall_pos = wall_transform.translation;
-
-    let pos_min = Vec2::new(pos.x - size.x / 2.0, pos.y - size.y / 2.0);
-    let pos_max = Vec2::new(pos.x + size.x / 2.0, pos.y + size.y / 2.0);
-
-    let wall_min = wall_pos.truncate() - size.x / 2.0;
-    let wall_max = wall_pos.truncate() + size.x / 2.0;
-
-    pos_min.x < wall_max.x
-        && pos_max.x > wall_min.x
-        && pos_min.y < wall_max.y
-        && pos_max.y > wall_min.y
-}
-
 /// A [`Component`] struct for the Door elements.
 ///
 /// # Examples

@@ -46,11 +46,17 @@ macro_rules! generate_rooms {
 }
 
 #[macro_export]
-macro_rules! is_in_room {
-    ($etf:expr,$r:expr) => {
-        $etf.translation.x - 512.0 < $r.pos.x + 512.0
-            && $etf.translation.x + 512.0 > $r.pos.x - 512.0
-            && $etf.translation.y - 512.0 < $r.pos.y + 512.0
-            && $etf.translation.y + 512.0 > $r.pos.y - 512.0
+macro_rules! check_collision {
+    ($pos:expr,$sz:expr,$opos:expr) => {
+        check_collision!($pos, $sz, $opos, Vec2::splat(512.0))
     };
+    ($pos:expr,$sz:expr,$opos:expr,$osz:expr) => {{
+        let pos_min = Vec2::new($pos.x - $sz.x / 2.0, $pos.y - $sz.y / 2.0);
+        let pos_max = Vec2::new($pos.x + $sz.x / 2.0, $pos.y + $sz.y / 2.0);
+
+        let min = $opos.truncate() - $osz / 2.0;
+        let max = $opos.truncate() + $osz / 2.0;
+
+        pos_min.x < max.x && pos_max.x > min.x && pos_min.y < max.y && pos_max.y > min.y
+    }};
 }

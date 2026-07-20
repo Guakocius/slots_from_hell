@@ -189,7 +189,12 @@ pub fn move_player(
 
     let mut collision = false;
     for (wall_tf, wall) in &wall_query {
-        if check_collision(new_pos, player_size, wall_tf, wall) {
+        if check_collision!(
+            new_pos,
+            player_size,
+            wall_tf.translation,
+            Vec2::new(wall.height, wall.width)
+        ) {
             collision = true;
             break;
         }
