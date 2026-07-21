@@ -44,6 +44,8 @@ pub struct Player {
     pub speed: PlayerSpeed,
     /// Player position on the map.
     pub pos: Vec3,
+    /// The size of the Player.
+    pub size: Vec2,
 }
 
 impl Player {
@@ -62,8 +64,13 @@ impl Player {
     /// assert_eq!(player.name, String::from("Player"));
     /// assert_eq!(player.speed.0, 100.0);
     /// ```
-    pub fn new(name: String, speed: PlayerSpeed, pos: Vec3) -> Self {
-        Self { name, speed, pos }
+    pub fn new(name: String, speed: PlayerSpeed, pos: Vec3, size: Vec2) -> Self {
+        Self {
+            name,
+            speed,
+            pos,
+            size,
+        }
     }
 }
 
@@ -97,6 +104,7 @@ fn setup(
         "Player".to_string(),
         PlayerSpeed(300.0),
         Vec3::new(0.0, 0.0, 0.0),
+        Vec2::new(20.0, 20.0),
     );
 
     cmds.spawn((
@@ -152,14 +160,14 @@ fn update_camera(
 /// App::new().add_systems(Update, move_player);
 /// ```
 pub fn move_player(
-    mut player_query: Query<&mut Transform, With<Player>>,
+    mut player_query: Query<(&mut Transform, &Player)>,
     wall_query: Query<(&Transform, &Wall), Without<Player>>,
     speed: Res<PlayerSpeed>,
     time: Res<Time<Fixed>>,
     kb_input: Res<ButtonInput<KeyCode>>,
     camera_switch: Option<Res<CameraSwitch>>,
 ) {
-    let Ok(mut transform) = player_query.single_mut() else {
+    let Ok((mut transform, player)) = player_query.single_mut() else {
         return;
     };
 
@@ -185,13 +193,12 @@ pub fn move_player(
     let move_delta = direction.normalize_or_zero() * speed.0 * time.delta_secs();
 
     let new_pos = transform.translation + move_delta.extend(0.0);
-    let player_size = Vec2::new(20.0, 20.0);
 
     let mut collision = false;
     for (wall_tf, wall) in &wall_query {
         if check_collision!(
             new_pos,
-            player_size,
+            player.size,
             wall_tf.translation,
             Vec2::new(wall.height, wall.width)
         ) {
@@ -231,7 +238,12 @@ mod tests {
 
     #[test]
     fn test_player_new() {
-        let player = Player::new("Testname".into(), PlayerSpeed(100.0), Vec3::ZERO);
+        let player = Player::new(
+            "Testname".into(),
+            PlayerSpeed(100.0),
+            Vec3::ZERO,
+            Vec2::ZERO,
+        );
 
         assert_eq!(player.name, String::from("Testname"));
         assert_eq!(player.speed.0, 100.0);

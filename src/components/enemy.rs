@@ -1,7 +1,7 @@
 //! This module defines core structures and setup behaviors for game enemies.
 
 use crate::{GameState, Player, Room, Wall, check_collision};
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_northstar::{pathfind, prelude::*};
 
 /// Component representing an enemy `Enemy`.
@@ -24,6 +24,26 @@ pub struct Enemy {
     sprite_path: String,
     can_move_through_walls: bool,
     state: EnemyState,
+}
+
+#[derive(SystemParam)]
+pub struct EnemyQueries<'w, 's> {
+    enemies: Query<'w, 's, (&'static mut Transform, &'static mut Enemy)>,
+    player: Query<'w, 's, (&'static Transform, &'static Player), Without<Enemy>>,
+    walls: Query<'w, 's, (&'static Transform, &'static Wall), Without<Enemy>>,
+    rooms: Query<
+        'w,
+        's,
+        (&'static Transform, &'static Room),
+        (Without<Player>, Without<Wall>, Without<Enemy>),
+    >,
+}
+
+#[derive(SystemParam)]
+pub struct EnemyResources<'w> {
+    speed: Res<'w, EnemySpeed>,
+    time: Res<'w, Time<Fixed>>,
+    game_state: ResMut<'w, NextState<GameState>>,
 }
 
 /// The `movement speed` of the `enemies`.
@@ -221,25 +241,19 @@ struct EnemyMovementTimer(Timer);*/
 /// app.insert_resource(EnemySpeed(100.0)).update();
 /// app.add_systems(Update, enemy_movement).update();
 /// ```
-pub fn enemy_movement(
-    mut enemies_query: Query<(&mut Transform, &mut Enemy)>,
-    player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
-    wall_query: Query<(&Transform, &Wall), Without<Enemy>>,
-    room_query: Query<(&Transform, &Room), (Without<Player>, Without<Wall>, Without<Enemy>)>,
-    speed: Res<EnemySpeed>,
-    time: Res<Time<Fixed>>,
-) {
-    let Ok(player_tf) = player_query.single() else {
+pub fn enemy_movement(mut cmds: Commands, mut queries: EnemyQueries, mut res: EnemyResources) {
+    let Ok((player_tf, player)) = queries.player.single() else {
         return;
     };
+
     let player_pos = player_tf.translation;
 
-    for (mut enemy_tf, mut enemy) in &mut enemies_query {
+    for (mut enemy_tf, mut enemy) in &mut queries.enemies {
         match enemy.state {
             EnemyState::Patrolling => {
                 let mut timer = Timer::from_seconds(10.0, TimerMode::Repeating);
 
-                for (room_tf, room) in &room_query {
+                for (room_tf, room) in &queries.rooms {
                     if check_collision!(
                         enemy_tf.translation,
                         Vec2::new(512.0, 512.0),
@@ -258,12 +272,12 @@ pub fn enemy_movement(
             EnemyState::Chasing => {
                 let direction = (player_pos - enemy_tf.translation).normalize_or_zero();
 
-                let move_delta = direction * speed.0 * time.delta_secs();
+                let move_delta = direction * res.speed.0 * res.time.delta_secs();
                 let new_pos = enemy_tf.translation + move_delta;
                 let enemy_size = Vec2::new(64.0, 128.0);
 
                 let mut collision = false;
-                for (wall_tf, wall) in &wall_query {
+                for (wall_tf, wall) in &queries.walls {
                     if check_collision!(
                         new_pos,
                         enemy_size,
@@ -277,6 +291,9 @@ pub fn enemy_movement(
                 }
                 if !collision {
                     enemy_tf.translation = new_pos;
+                }
+                if check_collision!(new_pos, enemy_size, player_pos, player.size) {
+                    res.game_state.set(GameState::Dead);
                 }
             }
         }

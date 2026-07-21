@@ -5,6 +5,7 @@ use crate::{ClockPlugin, FpsPlugin, SecurityCameraPlugin, spawn_text};
 use bevy::prelude::*;
 
 const TEXT_COLOR: Color = Color::srgb(0.0, 0.28, 0.73);
+const RED: Color = Color::srgb(1.0, 0.0, 0.0);
 
 /// This enum symbolizes the current game state which is then
 /// handled accordingly.
@@ -36,6 +37,8 @@ pub enum GameState {
     Playing,
     /// Actively `paused the game`.
     Pause,
+    /// The `Player` died.
+    Dead,
 }
 
 #[derive(Resource, Debug, PartialEq, Eq, Clone, Copy)]
@@ -263,8 +266,8 @@ pub mod menu {
     };
 
     use super::{
-        ClockPlugin, DisplayQuality, FpsPlugin, GameState, InGame, SecurityCameraPlugin, Setting,
-        TEXT_COLOR, Volume,
+        ClockPlugin, DisplayQuality, FpsPlugin, GameState, InGame, RED, SecurityCameraPlugin,
+        Setting, TEXT_COLOR, Volume,
     };
 
     /// Function for generating the game's menu.
@@ -307,7 +310,8 @@ pub mod menu {
             .add_systems(
                 Update,
                 (menu_action, button_system).run_if(in_state(GameState::Pause)),
-            );
+            )
+            .add_systems(Update, game_over.run_if(in_state(GameState::Dead)));
     }
 
     /// This enum represents the current menu state.
@@ -423,6 +427,26 @@ pub mod menu {
                 (Interaction::None, None) => NORMAL_BUTTON.into(),
             }
         }
+    }
+
+    fn game_over(mut cmds: Commands) {
+        cmds.spawn((
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            children![(
+                Text::new("GAME OVER!"),
+                TextFont {
+                    font_size: FontSize::Px(50.0),
+                    ..default()
+                },
+                TextColor(RED),
+            )],
+        ));
     }
 
     use bevy::ecs::component::Mutable;
