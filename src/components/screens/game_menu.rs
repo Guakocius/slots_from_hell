@@ -261,7 +261,10 @@ pub mod menu {
     use bevy::{
         app::AppExit,
         color::palettes::css::NAVAJO_WHITE,
-        ecs::spawn::{SpawnIter, SpawnWith},
+        ecs::{
+            spawn::{SpawnIter, SpawnWith},
+            system::SystemParam,
+        },
         prelude::*,
     };
 
@@ -367,6 +370,17 @@ pub mod menu {
     #[derive(Component)]
     struct SelectedOption;
 
+    type ButtonData<'a> = (
+        &'a Interaction,
+        &'a mut BackgroundColor,
+        Option<&'static SelectedOption>,
+    );
+
+    type ButtonFilter = (Changed<Interaction>, With<Button>);
+
+    type SettingsData<'a, T: Resource + Component<Mutability = Mutable> + PartialEq + Copy> =
+        (&'a Interaction, &'a Setting<T>, Entity);
+
     const NORMAL_BUTTON: Color = Color::srgb(0.5, 0.5, 0.5);
     const HOVERED_BUTTON: Color = Color::srgb(0.75, 0.75, 0.75);
     const HOVERED_PRESSED_BUTTON: Color = Color::srgb(0.5, 0.65, 0.5);
@@ -413,12 +427,7 @@ pub mod menu {
         Quit,
     }
 
-    fn button_system(
-        mut interaction_query: Query<
-            (&Interaction, &mut BackgroundColor, Option<&SelectedOption>),
-            (Changed<Interaction>, With<Button>),
-        >,
-    ) {
+    fn button_system(mut interaction_query: Query<ButtonData, ButtonFilter>) {
         for (interaction, mut background_color, selected) in &mut interaction_query {
             *background_color = match (*interaction, selected) {
                 (Interaction::Pressed, _) | (Interaction::None, Some(_)) => PRESSED_BUTTON.into(),
@@ -452,10 +461,7 @@ pub mod menu {
     use bevy::ecs::component::Mutable;
 
     fn setting_button<T: Resource + Component<Mutability = Mutable> + PartialEq + Copy>(
-        interaction_query: Query<
-            (&Interaction, &Setting<T>, Entity),
-            (Changed<Interaction>, With<Button>),
-        >,
+        interaction_query: Query<SettingsData<'_, T>, ButtonFilter>,
         selected_query: Single<(Entity, &mut BackgroundColor), With<SelectedOption>>,
         mut cmds: Commands,
         mut setting: ResMut<T>,
