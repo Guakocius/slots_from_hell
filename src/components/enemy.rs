@@ -2,6 +2,7 @@
 
 use crate::{GameState, Player, Room, Wall, check_collision};
 use bevy::prelude::*;
+use bevy_northstar::{pathfind, prelude::*};
 
 /// Component representing an enemy `Enemy`.
 ///
@@ -186,6 +187,25 @@ pub fn add_enemies(mut cmds: Commands, assets: Res<AssetServer>) {
     cmds.insert_resource(EnemySpeed(300.0));
 }
 
+fn move_to_player(
+    grid: Single<&mut CardinalGrid>,
+    start: Query<&Transform, With<Enemy>>,
+    goal: Query<&Transform, (With<Player>, Without<Enemy>)>,
+) {
+    let Ok(start) = start.single() else {
+        return;
+    };
+    let Ok(goal) = goal.single() else { return };
+    let mut grid = grid.into_inner();
+    let start_tf = start.translation;
+    let start = UVec3::new(start_tf.x as u32, start_tf.y as u32, start_tf.z as u32);
+    let goal_tf = goal.translation;
+    let goal = UVec3::new(goal_tf.x as u32, goal_tf.y as u32, goal_tf.z as u32);
+
+    let path_args = pathfind::PathfindArgs::new(start, goal);
+    let path = path_args.astar();
+}
+
 /*#[derive(Resource, Debug)]
 struct EnemyMovementTimer(Timer);*/
 
@@ -232,10 +252,6 @@ pub fn enemy_movement(
                         enemy.state = EnemyState::Chasing;
                     }
                 }
-
-                /*let Ok((wall_tf, wall)) = wall_query.single() else {
-                    return;
-                };*/
 
                 if timer.just_finished() {}
             }

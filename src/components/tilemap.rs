@@ -1,13 +1,13 @@
 //! A module for creating the world's environments and embedding its graphics inside a
 //! Tilemap.
 
+use crate::{GameState, InGame, generate_rooms};
 use bevy::{
     image::{ImageArrayLayout, ImageLoaderSettings},
     prelude::*,
     sprite_render::{TileData, TilemapChunk, TilemapChunkTileData},
 };
-
-use crate::{GameState, InGame, generate_rooms};
+use bevy_northstar::prelude::*;
 
 /// A plugin which adds the scene's setup and the tilemap update to the `App's`
 /// behavior.
@@ -24,7 +24,8 @@ pub struct TilemapPlugin;
 
 impl Plugin for TilemapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup)
+        app.add_plugins(NorthstarPlugin::<CardinalNeighborhood>::default())
+            .add_systems(OnEnter(GameState::Playing), setup)
             .add_systems(Update, pause.run_if(in_state(GameState::Playing)));
     }
 }
@@ -215,7 +216,13 @@ pub struct DoorSides {
     pub skip_bottom: bool,
 }
 
-fn generate_walls(center: Vec2, size: Vec2, tile_size: f32, doors: DoorSides) -> Vec<Wall> {
+fn generate_walls(
+    center: Vec2,
+    size: Vec2,
+    tile_size: f32,
+    doors: DoorSides,
+    grid: &mut CardinalGrid,
+) -> Vec<Wall> {
     let half = size / 2.0;
     let inset = half - Vec2::splat(tile_size / 2.0);
     let mut walls = Vec::new();
@@ -283,6 +290,13 @@ fn generate_walls(center: Vec2, size: Vec2, tile_size: f32, doors: DoorSides) ->
             ));
         }
     }
+    walls.iter().for_each(|w| {
+        grid.set_nav(
+            UVec3::new(w.pos.x as u32, w.pos.y as u32, 0),
+            Nav::Impassable,
+        )
+    });
+    grid.build();
     walls
 }
 
@@ -296,6 +310,12 @@ fn setup(
     }
 
     const TILE_SIZE: f32 = 64.0;
+
+    let grid_settings = GridSettingsBuilder::new_2d(4096, 4096)
+        .chunk_size(512)
+        .build();
+
+    let mut grid = CardinalGrid::new(&grid_settings);
 
     let mut walls = Vec::new();
 
@@ -311,6 +331,7 @@ fn setup(
             right: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Right room walls
@@ -324,6 +345,7 @@ fn setup(
             skip_left: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Left room walls
@@ -336,6 +358,7 @@ fn setup(
             skip_right: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Top room walls
@@ -348,6 +371,7 @@ fn setup(
             skip_bottom: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Bottom room walls
@@ -361,6 +385,7 @@ fn setup(
             skip_top: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Top right room walls
@@ -373,6 +398,7 @@ fn setup(
             skip_bottom: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Bottom left room walls
@@ -385,6 +411,7 @@ fn setup(
             skip_top: true,
             ..default()
         },
+        &mut grid,
     ));
 
     // Bottom right room wall
@@ -397,7 +424,10 @@ fn setup(
             skip_left: true,
             ..default()
         },
+        &mut grid,
     ));
+
+    cmds.spawn(CardinalGrid::new(&grid_settings));
 
     let tile_data: Vec<Option<TileData>> = (0..CHUNK_SIZE.element_product())
         .map(|i| Some(TileData::from_tileset_index(i as u16)))
