@@ -30,8 +30,11 @@ impl Plugin for TilemapPlugin {
     }
 }
 
+const TILE_SIZE: f32 = 64.0;
 const CHUNK_SIZE: UVec2 = UVec2::splat(16);
 const TILE_DISPLAY_SIZE: UVec2 = UVec2::splat(64);
+const MAP_WORLD_SIZE: f32 = 3072.0; // -1536.0..1536.0
+const MAP_OFFSET: Vec2 = Vec2::splat(MAP_WORLD_SIZE / 2.0);
 
 /// A module representing an already existing World map.
 ///
@@ -216,6 +219,13 @@ pub struct DoorSides {
     pub skip_bottom: bool,
 }
 
+fn world_to_grid(pos: Vec2) -> UVec3 {
+    let shifted = pos + MAP_OFFSET;
+    let x = (shifted.x / TILE_SIZE).floor() as u32;
+    let y = (shifted.y / TILE_SIZE).floor() as u32;
+    UVec3::new(x, y, 0)
+}
+
 fn generate_walls(
     center: Vec2,
     size: Vec2,
@@ -291,12 +301,11 @@ fn generate_walls(
         }
     }
     walls.iter().for_each(|w| {
-        grid.set_nav(
-            UVec3::new(w.pos.x as u32, w.pos.y as u32, 0),
-            Nav::Impassable,
-        )
+        let grid_pos = world_to_grid(w.pos.truncate());
+        if grid_pos.x < 48 && grid_pos.y < 48 {
+            grid.set_nav(grid_pos, Nav::Impassable);
+        }
     });
-    grid.build();
     walls
 }
 
@@ -309,10 +318,8 @@ fn setup(
         return;
     }
 
-    const TILE_SIZE: f32 = 64.0;
-
-    let grid_settings = GridSettingsBuilder::new_2d(4096, 4096)
-        .chunk_size(512)
+    let grid_settings = GridSettingsBuilder::new_2d(48, 48) // colums,rows = 3072/64px = 48 Tiles
+        .chunk_size(16)
         .build();
 
     let mut grid = CardinalGrid::new(&grid_settings);
@@ -426,8 +433,9 @@ fn setup(
         },
         &mut grid,
     ));
+    grid.build();
 
-    cmds.spawn(CardinalGrid::new(&grid_settings));
+    cmds.spawn(grid);
 
     let tile_data: Vec<Option<TileData>> = (0..CHUNK_SIZE.element_product())
         .map(|i| Some(TileData::from_tileset_index(i as u16)))
