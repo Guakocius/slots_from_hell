@@ -20,6 +20,7 @@
 
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+/// Utility files in order to improve the readability and scalability of existing code files.
 pub mod utils {
     pub mod macros;
 }

@@ -1,3 +1,4 @@
+//! Module for all macros.
 use crate::*;
 
 /// Spawns text using the specified parameters.

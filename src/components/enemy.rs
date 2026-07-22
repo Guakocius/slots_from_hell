@@ -302,24 +302,5 @@ pub fn enemy_movement(mut cmds: Commands, mut queries: EnemyQueries, mut res: En
 
 #[cfg(test)]
 mod tests {
-    use bevy::mesh::MeshPlugin;
-
     use super::*;
-
-    /*#[test]
-    fn test_add_enemies() {
-        let mut app = App::new();
-
-        app.add_plugins(MeshPlugin)
-            .insert_resource()
-            .add_systems(Startup, add_enemies)
-            .update();
-
-        let count = app
-            .world_mut()
-            .query_filtered::<(), With<Enemy>>()
-            .iter(app.world())
-            .count();
-        assert_eq!(count, 4);
-    }*/
 }
